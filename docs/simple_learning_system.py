@@ -1,8 +1,11 @@
+import os
 import typing
 from abc import ABC, abstractmethod
 
 from orderedset import OrderedSet
 
+from loreleai.filereaders.knowledgereader import createKnowledge
+from loreleai.filereaders.taskreader import readPositiveOfType
 from loreleai.language.lp import c_pred, Clause, Procedure, Atom
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.language_filtering import has_singleton_vars, has_duplicated_literal
@@ -244,6 +247,10 @@ class SimpleBreadthFirstLearner(TemplateLearner):
 
 
 if __name__ == '__main__':
+
+    #kip = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge")
+    kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "train")
+
     # define the predicates
     father = c_pred("father", 2)
     mother = c_pred("mother", 2)
