@@ -248,11 +248,11 @@ class SimpleBreadthFirstLearner(TemplateLearner):
 
 if __name__ == '__main__':
 
-    #kip = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge")
-    kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "train")
-    print(len(kip))
-    kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "test")
-    print(len(kip))
+    kip = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge")
+    #kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "train")
+    #print(len(kip))
+    #kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "test")
+    #print(len(kip))
 
     # define the predicates
     father = c_pred("father", 2)

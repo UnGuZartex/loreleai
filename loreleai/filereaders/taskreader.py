@@ -16,7 +16,7 @@ def readPositiveOfType(inputfile: str, type: str) -> dict:
                     found = re.findall('\[[^\[]*]', line)
                     allitems = []
                     for item in found:
-                        item = item.replace("[", "").replace("]","").replace("'","").replace(", ",",")
+                        item = item.replace("[", "").replace("]","").replace("'","").replace(", ",",")  #Maybe different, depending on how we want to represent a string (as list or as string)
                         item = item.split(",")
                         item = "".join(item)
                         item = c_const(item)
