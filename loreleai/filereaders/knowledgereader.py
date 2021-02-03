@@ -1,0 +1,3 @@
+
+
+def createKnowledge(inputfile: String)
