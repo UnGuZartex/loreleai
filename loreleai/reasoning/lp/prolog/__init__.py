@@ -3,12 +3,12 @@
 # from .XSBProlog import XSBProlog
 # #from .Prolog import Prolog
 
-from pylo.engines.prolog import GNUProlog, SWIProlog, XSBProlog
+from pylo.engines.prolog import SWIProlog
 from pylo.engines.prolog.prologsolver import Prolog
 
 __all__ = [
     "SWIProlog",
-    "XSBProlog",
-    "GNUProlog",
+    # "XSBProlog",
+    # "GNUProlog",
     "Prolog"
 ]
