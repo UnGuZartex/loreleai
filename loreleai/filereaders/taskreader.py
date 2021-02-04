@@ -1,6 +1,6 @@
 import re
 
-from loreleai.language.commons import c_pred, c_const
+from loreleai.language.commons import c_pred, c_const, List
 
 
 def readPositiveOfType(inputfile: str, type: str) -> dict:
@@ -16,13 +16,16 @@ def readPositiveOfType(inputfile: str, type: str) -> dict:
                     found = re.findall('\[[^\[]*]', line)
                     allitems = []
                     for item in found:
-                        item = item.replace("[", "").replace("]","").replace("'","").replace(", ",",")  #Maybe different, depending on how we want to represent a string (as list or as string)
+                        item = item.replace("[", "").replace("]","").replace("'","").replace(", ",",")
                         item = item.split(",")
                         item = "".join(item)
-                        item = c_const(item)
+                        allLetters = []
+                        for letter in item:
+                            constLet = c_const(letter)
+                            allLetters.append(constLet)
+                        item = List(allLetters)
                         allitems.append(item)
                     predicate = c_pred(header, len(allitems))
-                    print(allitems)
                     if not header in totaldict:
                         totaldict[header] = []
                     totaldict[header].append(predicate(allitems[0], allitems[1]))

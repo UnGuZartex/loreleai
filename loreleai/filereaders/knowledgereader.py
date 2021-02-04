@@ -1,29 +1,42 @@
 import re
 
-from loreleai.language.commons import c_pred
+from loreleai.language.commons import c_pred, c_const, Structure, Atom
 from loreleai.learning import Knowledge
 
 
 def createKnowledge(relativepath: str) -> Knowledge:
     knowledge = Knowledge()
-    s = c_pred("s", 2)
     with open(relativepath, "r") as file:
         for line in file:
             if not line.isspace():
-                line = line.replace("\n","")
+                line = line.replace("\n", "")
                 if not ":-" in line:
                     lineheader = line.split("(")[0]
                     predicates = re.findall('s?\([^(]*\)', line)
                     allitems = []
                     for item in predicates:
                         if item.startswith("s"):
-                            item = item.split(",")
-                            item = s(item[0], item[1])
-                            allitems.append(item)
-                    print(allitems)
-                    headerpredicate = c_pred(lineheader, len(predicates))
-                    knowledge.add(headerpredicate(allitems))
+                            print("s man")
+                            # item = item.replace("s(", "").replace(")","").split(",")
+                            # print(item)
+                            # allConst = []
+                            # for const in item:
+                            #     allConst.append(c_const(const))
+                            # item = Structure(allConst)
+                            # allitems.append(item)
+                        else:
+                            if "'" in item:
+                                item = item.replace("'", "").replace("(", "").replace(")", "").split(",")
+                                for const in item:
+                                    allitems.append(c_const(const))
                     print(lineheader)
+                    print(allitems)
+                    headerpredicate = c_pred(lineheader, len(allitems))
+                    print(Atom(headerpredicate, allitems))
+                    knowledge.add(
+                        Atom(headerpredicate, allitems)
+                    )
+
                 else:
                     print("func")
     print(knowledge.get_all())
