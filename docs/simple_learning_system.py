@@ -247,7 +247,7 @@ class SimpleBreadthFirstLearner(TemplateLearner):
 
 if __name__ == '__main__':
 
-    kip = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge")
+    kip = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge", "b45")
     #kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "train")
     #print(len(kip))
     #kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "test")
@@ -262,6 +262,7 @@ if __name__ == '__main__':
     background = Knowledge(father("a", "b"), mother("a", "b"), mother("b", "c"),
                            father("e", "f"), father("f", "g"),
                            mother("h", "i"), mother("i", "j"))
+
 
     # positive examples
     pos = {grandparent("a", "c"), grandparent("e", "g"), grandparent("h", "j")}

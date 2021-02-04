@@ -27,7 +27,7 @@ def readPositiveOfType(inputfile: str, type: str) -> dict:
                         allitems.append(item)
                     predicate = c_pred(header, len(allitems))
                     if not header in totaldict:
-                        totaldict[header] = []
-                    totaldict[header].append(predicate(allitems[0], allitems[1]))
+                        totaldict[header] = set()
+                    totaldict[header].add(predicate(*allitems))
     print(totaldict)
     return totaldict
