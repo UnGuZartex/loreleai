@@ -2,10 +2,11 @@ import typing
 from abc import ABC, abstractmethod
 
 from orderedset import OrderedSet
+from pylo.language.commons import List
 
 from loreleai.filereaders.knowledgereader import createKnowledge
 from loreleai.filereaders.taskreader import readPositiveOfType
-from loreleai.language.lp import c_pred, Clause, Procedure, Atom
+from loreleai.language.lp import c_const, c_pred, Clause, Procedure, Atom
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.language_filtering import has_singleton_vars, has_duplicated_literal
 from loreleai.learning.language_manipulation import plain_extension
@@ -30,6 +31,8 @@ It is implemented as a template learner - you still need to provide the followin
                                                     
 The learner does not handle recursions correctly!
 """
+
+
 class TemplateLearner(ABC):
 
     def __init__(self, solver_instance: Prolog):
@@ -104,7 +107,8 @@ class TemplateLearner(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def process_expansions(self, examples: Task, exps: typing.Sequence[Clause], hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
+    def process_expansions(self, examples: Task, exps: typing.Sequence[Clause],
+                           hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
         """
         Processes the expansions of a clause
         It can be used to eliminate useless expansions (e.g., the one that have no solution, ...)
@@ -130,10 +134,10 @@ class TemplateLearner(ABC):
         current_cand = None
         score = -100
 
-        while current_cand is None or (len(self._candidate_pool) > 0 and not self.stop_inner_search(score, examples, current_cand)):
+        while current_cand is None or (
+                len(self._candidate_pool) > 0 and not self.stop_inner_search(score, examples, current_cand)):
             # get first candidate from the pool
             current_cand = self.get_from_pool()
-
             # expand the candidate
             _ = hypothesis_space.expand(current_cand)
             # this is important: .expand() method returns candidates only the first time it is called;
@@ -153,7 +157,9 @@ class TemplateLearner(ABC):
         General learning loop
         """
 
-        self._assert_knowledge(knowledge)
+        # self._assert_knowledge(knowledge)
+        self._solver.consult(
+            "../inputfiles/StringTransformations_BackgroundKnowledge.pl")  # TODO Look if this is good enough for our background knowledge
         final_program = []
         examples_to_use = examples
         pos, _ = examples_to_use.get_examples()
@@ -171,6 +177,7 @@ class TemplateLearner(ABC):
 
             examples_to_use = Task(pos, neg)
 
+            break
         return final_program
 
 
@@ -226,7 +233,8 @@ class SimpleBreadthFirstLearner(TemplateLearner):
         else:
             return False
 
-    def process_expansions(self, examples: Task, exps: typing.Sequence[Clause], hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
+    def process_expansions(self, examples: Task, exps: typing.Sequence[Clause],
+                           hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
         # eliminate every clause with more body literals than allowed
         exps = [cl for cl in exps if len(cl) <= self._max_body_literals]
 
@@ -247,11 +255,14 @@ class SimpleBreadthFirstLearner(TemplateLearner):
 
 if __name__ == '__main__':
 
-    kip = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge", "b45")
-    #kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "train")
-    #print(len(kip))
-    #kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "test")
-    #print(len(kip))
+    chosen_pred = "b45"
+
+    backgroundknow, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl",
+                                                 chosen_pred)
+    train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train")
+    # print(len(kip))
+    # kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "test")
+    # print(len(kip))
 
     # define the predicates
     father = c_pred("father", 2)
@@ -263,13 +274,22 @@ if __name__ == '__main__':
                            father("e", "f"), father("f", "g"),
                            mother("h", "i"), mother("i", "j"))
 
+    # # positive examples
+    # pos = {grandparent("a", "c"), grandparent("e", "g"), grandparent("h", "j")}
+    #
+    # # negative examples
+    # neg = {grandparent("a", "b"), grandparent("a", "g"), grandparent("i", "j")}
+    #
 
-    # positive examples
-    pos = {grandparent("a", "c"), grandparent("e", "g"), grandparent("h", "j")}
-
-    # negative examples
-    neg = {grandparent("a", "b"), grandparent("a", "g"), grandparent("i", "j")}
-
+    A = c_const("'A'")
+    B = c_const("'B'")
+    a = c_const("'a'")
+    b = c_const("'b'")
+    b45 = c_pred("b45", 2)
+    negex = b45(List([A, B]), List([a, b]))
+    pos = train.get("b45")
+    neg = set()
+    neg.add(negex)
     task = Task(positive_examples=pos, negative_examples=neg)
 
     # create Prolog instance
@@ -277,16 +297,25 @@ if __name__ == '__main__':
 
     learner = SimpleBreadthFirstLearner(prolog, max_body_literals=3)
 
+    # # create the hypothesis space
+    # hs = TopDownHypothesisSpace(primitives=[lambda x: plain_extension(x, father, connected_clauses=True),
+    #                                         lambda x: plain_extension(x, mother, connected_clauses=True)],
+    #                             head_constructor=grandparent,
+    #                             expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
+    #                                                     lambda x, y: has_duplicated_literal(x, y)])
+
+    totalextension = []
+
+    for predicate in predicates:
+        print(predicate)
+        totalextension.append(lambda x: plain_extension(x, predicate, connected_clauses=False))
+
     # create the hypothesis space
-    hs = TopDownHypothesisSpace(primitives=[lambda x: plain_extension(x, father, connected_clauses=True),
-                                            lambda x: plain_extension(x, mother, connected_clauses=True)],
-                                head_constructor=grandparent,
+    hs = TopDownHypothesisSpace(primitives=totalextension,
+                                head_constructor=c_pred(chosen_pred, 2),
                                 expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
                                                         lambda x, y: has_duplicated_literal(x, y)])
 
     program = learner.learn(task, background, hs)
 
     print(program)
-
-
-

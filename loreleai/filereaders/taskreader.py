@@ -1,6 +1,6 @@
 import re
 
-from loreleai.language.commons import c_pred, c_const, List
+from pylo.language.commons import c_pred, c_const, List
 
 
 def readPositiveOfType(inputfile: str, type: str) -> dict:
@@ -21,7 +21,7 @@ def readPositiveOfType(inputfile: str, type: str) -> dict:
                         item = "".join(item)
                         allLetters = []
                         for letter in item:
-                            constLet = c_const(letter)
+                            constLet = c_const("'" + letter + "'")
                             allLetters.append(constLet)
                         item = List(allLetters)
                         allitems.append(item)
@@ -29,5 +29,4 @@ def readPositiveOfType(inputfile: str, type: str) -> dict:
                     if not header in totaldict:
                         totaldict[header] = set()
                     totaldict[header].add(predicate(*allitems))
-    print(totaldict)
     return totaldict
