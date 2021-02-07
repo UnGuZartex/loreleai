@@ -65,8 +65,6 @@ class TemplateLearner(ABC):
 
             sols = self._solver.query(*clause.get_body().get_literals())
 
-            print(sols)
-
             sols = [head_predicate(*[s[v] for v in head_variables]) for s in sols]
 
             return sols
@@ -178,8 +176,6 @@ class TemplateLearner(ABC):
             pos = pos.difference(covered)
 
             examples_to_use = Task(pos, neg)
-
-            break
         return final_program
 
 
@@ -263,7 +259,7 @@ if __name__ == '__main__':
                                                  chosen_pred)
     train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train_task")
     # print(len(kip))
-    # kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
+    test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
     # print(len(kip))
 
     # define the predicates
@@ -288,8 +284,7 @@ if __name__ == '__main__':
     a = c_const("'a'")
     b = c_const("'b'")
     s = c_pred("s", 2)
-    negex = s(List([A, B]), List([a, b]))
-    pos = train.get("b45")
+    pos = test.get("b45")
     neg = set()
     task = Task(positive_examples=pos, negative_examples=neg)
 
