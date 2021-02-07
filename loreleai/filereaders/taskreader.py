@@ -1,16 +1,17 @@
 import re
 
-from pylo.language.commons import c_pred, c_const, List
+from pylo.language.commons import c_pred, c_const, List, Structure, c_functor
 
 
 def readPositiveOfType(inputfile: str, type: str) -> dict:
     totaldict = {}
+    s = c_functor("s")
     with open(inputfile, "r") as file:
         for line in file:
             if not line.isspace():
                 line = line.replace("\n", "")
                 if line.startswith(type):
-                    line = line.replace(type+"_task(", "")
+                    line = line.replace(type+"(", "")
                     line = line[:-2]
                     header = line.split(",")[0]
                     found = re.findall('\[[^\[]*]', line)
@@ -25,8 +26,9 @@ def readPositiveOfType(inputfile: str, type: str) -> dict:
                             allLetters.append(constLet)
                         item = List(allLetters)
                         allitems.append(item)
-                    predicate = c_pred(header, len(allitems))
+                    struct = Structure(s, allitems)
                     if not header in totaldict:
                         totaldict[header] = set()
-                    totaldict[header].add(predicate(*allitems))
+                    totaldict[header].add(c_pred(type, 1)(struct))
+    print(totaldict)
     return totaldict

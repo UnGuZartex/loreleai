@@ -1,5 +1,3 @@
-s(A,B) :- b45(A,B).
-
 is_empty(s([],_)).
 not_empty(s([_|_],_)).
 

@@ -65,6 +65,8 @@ class TemplateLearner(ABC):
 
             sols = self._solver.query(*clause.get_body().get_literals())
 
+            print(sols)
+
             sols = [head_predicate(*[s[v] for v in head_variables]) for s in sols]
 
             return sols
@@ -259,9 +261,9 @@ if __name__ == '__main__':
 
     backgroundknow, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl",
                                                  chosen_pred)
-    train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train")
+    train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train_task")
     # print(len(kip))
-    # kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "test")
+    # kip = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
     # print(len(kip))
 
     # define the predicates
@@ -285,11 +287,10 @@ if __name__ == '__main__':
     B = c_const("'B'")
     a = c_const("'a'")
     b = c_const("'b'")
-    b45 = c_pred("b45", 2)
-    negex = b45(List([A, B]), List([a, b]))
+    s = c_pred("s", 2)
+    negex = s(List([A, B]), List([a, b]))
     pos = train.get("b45")
     neg = set()
-    neg.add(negex)
     task = Task(positive_examples=pos, negative_examples=neg)
 
     # create Prolog instance
@@ -307,12 +308,13 @@ if __name__ == '__main__':
     totalextension = []
 
     for predicate in predicates:
-        print(predicate)
-        totalextension.append(lambda x: plain_extension(x, predicate, connected_clauses=False))
+        if predicate.name not in ["s", chosen_pred]:
+            print(predicate)
+            totalextension.append(lambda x: plain_extension(x, predicate, connected_clauses=True))
 
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=totalextension,
-                                head_constructor=c_pred(chosen_pred, 2),
+                                head_constructor=c_pred("train_task", 1),
                                 expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
                                                         lambda x, y: has_duplicated_literal(x, y)])
 
