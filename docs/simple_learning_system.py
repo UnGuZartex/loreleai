@@ -303,7 +303,6 @@ if __name__ == '__main__':
 
     for predicate in predicates:
         if predicate.name not in ["s", chosen_pred]:
-            print(predicate)
             totalextension.append(lambda x, predicate=predicate: plain_extension(x, predicate, connected_clauses=True))
 
     # create the hypothesis space
