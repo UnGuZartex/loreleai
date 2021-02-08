@@ -62,7 +62,6 @@ class TemplateLearner(ABC):
         else:
             head_predicate = clause.get_head().get_predicate()
             head_variables = clause.get_head_variables()
-
             sols = self._solver.query(*clause.get_body().get_literals())
 
             sols = [head_predicate(*[s[v] for v in head_variables]) for s in sols]
@@ -305,7 +304,7 @@ if __name__ == '__main__':
     for predicate in predicates:
         if predicate.name not in ["s", chosen_pred]:
             print(predicate)
-            totalextension.append(lambda x: plain_extension(x, predicate, connected_clauses=True))
+            totalextension.append(lambda x, predicate=predicate: plain_extension(x, predicate, connected_clauses=True))
 
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=totalextension,
