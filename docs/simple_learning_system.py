@@ -278,11 +278,6 @@ if __name__ == '__main__':
     # neg = {grandparent("a", "b"), grandparent("a", "g"), grandparent("i", "j")}
     #
 
-    A = c_const("'A'")
-    B = c_const("'B'")
-    a = c_const("'a'")
-    b = c_const("'b'")
-    s = c_pred("s", 2)
     pos = test.get("b45")
     neg = set()
     task = Task(positive_examples=pos, negative_examples=neg)
