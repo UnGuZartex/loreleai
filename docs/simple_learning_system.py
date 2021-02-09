@@ -175,6 +175,7 @@ class TemplateLearner(ABC):
             pos = pos.difference(covered)
 
             examples_to_use = Task(pos, neg)
+
         return final_program
 
 
@@ -280,6 +281,7 @@ if __name__ == '__main__':
 
     pos = test.get("b45")
     neg = set()
+    
     task = Task(positive_examples=pos, negative_examples=neg)
 
     # create Prolog instance
