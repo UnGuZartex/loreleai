@@ -46,7 +46,7 @@ class TemplateLearner(ABC):
         for cl_ind in range(len(clauses)):
             self._solver.assertz(clauses[cl_ind])
 
-    def _execute_program(self, clause: Clause) -> typing.Sequence[Atom]:
+    def _execute_program(self, examples: Task, clause: Clause) -> typing.Sequence[Atom]:
         """
         Evaluates a clause using the Prolog engine and background knowledge
 
@@ -55,14 +55,24 @@ class TemplateLearner(ABC):
         if len(clause.get_body().get_literals()) == 0:
             return []
         else:
-            head_predicate = clause.get_head().get_predicate()
-            head_variables = clause.get_head_variables()
 
-            sols = self._solver.query(*clause.get_body().get_literals())
+            self._solver.asserta(clause)
+            covered_examples = []
+            pos, neg = examples.get_examples()
+            total_examples = pos.union(neg)
+            for example in total_examples:
+                if self._solver.has_solution(example):
+                    covered_examples.append(example)
+            self._solver.retract(clause)
 
-            sols = [head_predicate(*[s[v] for v in head_variables]) for s in sols]
+            # head_predicate = clause.get_head().get_predicate()
+            # head_variables = clause.get_head_variables()
+            #
+            # sols = self._solver.query(*clause.get_body().get_literals())
+            #
+            # sols = [head_predicate(*[s[v] for v in head_variables]) for s in sols]
 
-            return sols
+            return covered_examples
 
     @abstractmethod
     def initialise_pool(self):
@@ -162,7 +172,7 @@ class TemplateLearner(ABC):
             final_program.append(cl)
 
             # update covered positive examples
-            covered = self._execute_program(cl)
+            covered = self._execute_program(examples, cl)
 
             pos, neg = examples_to_use.get_examples()
             pos = pos.difference(covered)
@@ -206,7 +216,7 @@ class SimpleBreadthFirstLearner(TemplateLearner):
         return self._candidate_pool.pop(0)
 
     def evaluate(self, examples: Task, clause: Clause) -> typing.Union[int, float]:
-        covered = self._execute_program(clause)
+        covered = self._execute_program(examples, clause)
 
         pos, neg = examples.get_examples()
 
