@@ -30,5 +30,4 @@ def readPositiveOfType(inputfile: str, type: str) -> dict:
                     if not header in totaldict:
                         totaldict[header] = set()
                     totaldict[header].add(c_pred(type, 1)(struct))
-    print(totaldict)
     return totaldict
