@@ -37,16 +37,15 @@ def var_coeff(current_cand: Clause):
         all_variables = literal.get_variables()
         for i in range(len(all_variables)):
             for j in range(i, len(all_variables)):
-                if not connections.get(all_variables[i]):
-                    connections[all_variables[i]] = list()
-                connections.get(all_variables[i]).append(all_variables[j])
+                if all_variables[i] != all_variables[j]:
+                    if not connections.get(all_variables[i]):
+                        connections[all_variables[i]] = list()
+                    connections.get(all_variables[i]).append(all_variables[j])
     diff_vars = len(connections)
     full_combined = factorial(diff_vars) * totalliterals
-    print(full_combined)
     total_connections = 0
     for var in connections:
         total_connections += len(connections.get(var))
-    print(total_connections)
     return str(total_connections / full_combined)
 
 
@@ -58,7 +57,7 @@ def encode_clause(current_cand: Clause, filtered_predicates):
     return encoded_clause
 
 
-def encode_string(string: List):
+def encode_string(string: List):  # TODO hier dus goeie encoding voor maken idk hoe though
     result = [0] * MAX_STRING_LENGTH
     arguments = string.arguments
     for index in range(len(arguments)):
@@ -97,7 +96,6 @@ def get_output_data(current_cand, expansions, example,
     encoded_current_cand = clause_to_list(current_cand, filtered_predicates)
     total_occurrences = [0] * len(filtered_predicates)
     total_covered = [0] * len(filtered_predicates)
-    print(len(expansions))
     for expansion in expansions:
         encoded_expansion = clause_to_list(expansion, filtered_predicates)
         clause_index = find_difference(encoded_current_cand, encoded_expansion)
@@ -161,13 +159,13 @@ def main():
         #     if the same node is expanded the second time, it returns the empty list
         #     it is safer than to use the .get_successors_of method
         exps = hs.get_successors_of(current_cand)
-        expa = remove_random(exps)
-        put_into_pool(possible_candidates, expa)
+        exps = remove_random(exps)
+        put_into_pool(possible_candidates, exps)
 
-        if random.random() > 0.5 and len(current_cand) > minlength:
+        if random.random() < 0.1 and len(current_cand) > minlength:
             for problem in train:
                 for example in train.get(problem):
-                    if random.random() > 0.5:
+                    if random.random() < 0.1:
                         input = get_input_data(current_cand, example, filtered_predicates)
                         output = get_output_data(current_cand, exps, example, filtered_predicates)
                         f.write(input + "," + output + "\n")
