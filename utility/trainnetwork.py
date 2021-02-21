@@ -20,6 +20,8 @@ output = keras.layers.Dense(22, activation='sigmoid')(hidden)
 
 model = keras.Model(inputs=[clause_input, input_model, output_model], outputs=output)
 
+model.compile()
+
 model.save("Saved_model")
 
 print(model.summary())
