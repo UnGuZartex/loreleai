@@ -2,11 +2,10 @@ import typing
 from abc import ABC, abstractmethod
 
 from orderedset import OrderedSet
-from pylo.language.commons import List
 
-from loreleai.filereaders.knowledgereader import createKnowledge
-from loreleai.filereaders.taskreader import readPositiveOfType
-from loreleai.language.lp import c_const, c_pred, Clause, Procedure, Atom
+from filereaders.knowledgereader import createKnowledge
+from filereaders.taskreader import readPositiveOfType
+from loreleai.language.lp import c_pred, Clause, Procedure, Atom
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.language_filtering import has_singleton_vars, has_duplicated_literal
 from loreleai.learning.language_manipulation import plain_extension
@@ -308,10 +307,12 @@ if __name__ == '__main__':
     #                                                     lambda x, y: has_duplicated_literal(x, y)])
 
     totalextension = []
+    filtered_predicates = []
 
     for predicate in predicates:
-        if predicate.name not in ["s", chosen_pred]:
+        if predicate.name not in ["s", chosen_pred] and predicate not in filtered_predicates:
             totalextension.append(lambda x, predicate=predicate: plain_extension(x, predicate, connected_clauses=True))
+            filtered_predicates.append(predicate)
 
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=totalextension,

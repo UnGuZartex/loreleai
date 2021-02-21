@@ -13,7 +13,7 @@ IGNORECOUNTER = 0
 
 def createKnowledge(relativepath: str, functionName: str) -> Tuple[Knowledge, Set[Predicate]]:
     knowledge = None
-    predicateList = set()
+    predicateList = list()
     with open(relativepath, "r") as file:
         for line in file:
             if not line.isspace():
@@ -50,7 +50,7 @@ def createKnowledge(relativepath: str, functionName: str) -> Tuple[Knowledge, Se
     return knowledge, predicateList
 
 
-def string_to_atom(line: str, s: str, predicateList: set) -> Atom:
+def string_to_atom(line: str, s: str, predicateList: list) -> Atom:
     lineheader = line.split("(")[0]
     predicates = re.findall('(s?\([^()]*\)|[,(][^()]*[,)])', line) # Correct this regex to also find H in write1
     allitems = []
@@ -64,7 +64,7 @@ def string_to_atom(line: str, s: str, predicateList: set) -> Atom:
             string_to_lit(item, allitems)
 
     headerpredicate = c_pred(lineheader, len(allitems))
-    predicateList.add(headerpredicate)
+    predicateList.append(headerpredicate)
     return Atom(headerpredicate, allitems)
 
 
