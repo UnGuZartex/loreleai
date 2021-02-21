@@ -11,6 +11,7 @@ from filereaders.taskreader import readPositiveOfType
 from loreleai.learning import plain_extension, TopDownHypothesisSpace, has_singleton_vars, has_duplicated_literal
 
 MAX_STRING_LENGTH = 120
+prolog = SWIProlog()
 
 
 def put_into_pool(candidate_pool: OrderedSet, candidates: typing.Union[Clause, Procedure, typing.Sequence]) -> None:
@@ -91,7 +92,6 @@ def find_difference(encoded_current_cand, encoded_expansion):
 
 def get_output_data(current_cand, expansions, example,
                     filtered_predicates):  # We might have to look into a way to make this faster because slowbro :'(
-    prolog = SWIProlog()
 
     encoded_current_cand = clause_to_list(current_cand, filtered_predicates)
     total_occurrences = [0] * len(filtered_predicates)
