@@ -1,5 +1,6 @@
 import random
 
+import numpy
 from pylo.language.commons import c_pred
 from tensorflow import keras
 
@@ -39,4 +40,11 @@ print(model.summary())
 
 output = model.predict(get_nn_input_data(hs.get_current_candidate()[0], random.sample(test["b45"],1)[0], filtered_predicates))
 
-print(output)
+print(output[0])
+
+# Code om de 3 grootste te krijgen uit de output (niet in gesorteerde volgorde)
+ind = numpy.argpartition(output[0], -3)[-3:]
+print(ind)
+
+numpy_predicates = numpy.array(filtered_predicates)
+print(numpy_predicates[ind])
