@@ -48,6 +48,8 @@ def var_coeff(current_cand: Clause):
     total_connections = 0
     for var in connections:
         total_connections += len(connections.get(var))
+    if full_combined == 0:
+        return 0
     return str(total_connections / full_combined)
 
 
