@@ -2,6 +2,7 @@ import random
 import typing
 from math import factorial
 
+import numpy
 from pylo.engines import SWIProlog
 from pylo.language.commons import c_pred, Clause, Procedure, Atom, Structure, List
 from orderedset import OrderedSet
@@ -81,6 +82,23 @@ def get_input_data(current_cand: Clause, example: Atom, filtered_predicates):
     encoded_example = encode_example(
         example.arguments[0])  # Don't mind this warning (it works but python typing is weird :p)
     return encoded_clause + "," + encoded_example
+
+
+def get_nn_input_data(current_cand: Clause, example: Atom, filtered_predicates):
+    x_clause = []
+    x_input = []
+    x_output = []
+    inputstring = get_input_data(current_cand, example, filtered_predicates)
+    line = inputstring.replace("\n", "")
+    list_of_floats = [float(item) for item in line.split(",")]
+    x_clause.append(list_of_floats[:24])
+    x_input.append(list_of_floats[24:144])
+    x_output.append(list_of_floats[144:])
+    x_clause = numpy.array(x_clause)
+    x_input = numpy.array(x_input)
+    x_output = numpy.array(x_output)
+    x = [x_clause, x_input, x_output]
+    return x
 
 
 def find_difference(encoded_current_cand, encoded_expansion):
