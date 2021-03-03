@@ -60,6 +60,3 @@ model.save("Saved_model")
 
 print(model.summary())
 
-model = ""
-model = keras.models.load_model("Saved_model")
-print(model.summary())
