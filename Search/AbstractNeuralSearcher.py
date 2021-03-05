@@ -22,8 +22,7 @@ from utility.datapreprocessor import get_nn_input_data, clause_to_list, find_dif
 
 
 class AbstractNeuralSearcher(AbstractSearcher):
-    def __init__(self, solver_instance: Prolog, primitives, model_location, max_body_literals=4,
-                 amount_chosen_from_nn=3):
+    def __init__(self, solver_instance: Prolog, primitives, model_location, max_body_literals, amount_chosen_from_nn):
         super().__init__(solver_instance, primitives)
         self._max_body_literals = max_body_literals
         self.amount_chosen_from_nn = amount_chosen_from_nn
@@ -109,12 +108,14 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         for ind in range(len(exps)):
             if exps[ind][1]:
+                current_exp = exps[ind][0]
                 # TODO check of deze [0] klopt
-                encoded_exp = clause_to_list(exps[ind][0], primitives)
+                encoded_exp = clause_to_list(current_exp, primitives)
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
                 if self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
-                    new_exps.append(exps[ind][0])
+                    new_exps.append(current_exp)
+                    self.set_example_weights(self, current_cand, current_exp)
             else:
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])

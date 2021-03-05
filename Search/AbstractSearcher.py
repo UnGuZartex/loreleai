@@ -24,6 +24,7 @@ class AbstractSearcher(ABC):
         self._solver = solver_instance
         self.current_primitives = numpy.array(primitives)
         self._candidate_pool = []
+        self.example_weights = {}
 
     def _assert_knowledge(self, knowledge: Knowledge):
         """
@@ -118,6 +119,15 @@ class AbstractSearcher(ABC):
     def get_best_primitives(self, examples: Task, node: typing.Union[Clause, Recursion, Body]):
         raise NotImplementedError()
 
+    @abstractmethod
+    def set_example_weights(self, previous_cand: typing.Union[Clause, Procedure],
+                            current_cand: typing.Union[Clause, Procedure], examples: Task):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_initial_weights(self, examples: Task) -> dict:
+        raise NotImplementedError()
+
     def _learn_one_clause(self, examples: Task, hypothesis_space: TopDownHypothesisSpace) -> Clause:
         """
         Learns a single clause
@@ -176,5 +186,7 @@ class AbstractSearcher(ABC):
             pos = pos.difference(covered)
 
             examples_to_use = Task(pos, neg)
+            # Reset example weights
+            self.example_weights = {}
 
         return final_program
