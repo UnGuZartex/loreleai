@@ -34,7 +34,7 @@ class NeuralSearcher1(AbstractNeuralSearcher):
 
     def update_score(self, current_score_vector, new_score_vector):
         # TODO per score nog, miss nog current_cand als ftieparam om hier * weight te doen
-        raise current_score_vector + new_score_vector
+        return current_score_vector + new_score_vector
 
     def get_initial_weights(self, examples: Task) -> dict:
         example_weights = {}

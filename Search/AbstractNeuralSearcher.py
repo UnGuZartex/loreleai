@@ -115,6 +115,9 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 if self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
                     new_exps.append(current_exp)
+
+                    # TODO miss beter op moment daje hem uit pool neemt (minder berekeningen, stel je overloopt ze
+                    #  nie allemaal)
                     self.set_example_weights(self, current_cand, current_exp)
             else:
                 # remove from hypothesis space if it does not
