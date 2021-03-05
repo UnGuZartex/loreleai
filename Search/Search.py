@@ -19,7 +19,7 @@ backgroundknow, predicates = createKnowledge("../inputfiles/StringTransformation
 train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train_task")
 test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
 
-pos = train.get("b45")
+pos = test.get("b45")
 neg = set() # TODO negatieve voorbeelden genereren
 task = Task(positive_examples=pos, negative_examples=neg)
 
