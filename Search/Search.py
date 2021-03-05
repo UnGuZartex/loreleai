@@ -37,7 +37,7 @@ for predicate in predicates:
 
 # TODO recursion
 # create the hypothesis space
-hs = TopDownHypothesisSpace(primitives=totalextension,
+hs = TopDownHypothesisSpace(primitives=total_predicates,
                             head_constructor=c_pred("train_task", 1),
                             expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
                                                     lambda x, y: has_duplicated_literal(x, y)])
