@@ -1,8 +1,10 @@
 import typing
+from abc import abstractmethod
 
+import numpy
 from orderedset import OrderedSet
 
-from Search.AbstractLearner import AbstractLearner
+from Search.AbstractSearcher import AbstractSearcher
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.task import Task
 from loreleai.reasoning.lp.prolog import Prolog
@@ -18,24 +20,11 @@ from loreleai.language.lp import (
 )
 from utility.datapreprocessor import get_nn_input_data
 
-"""
-A simple breadth-first top-down learner: it extends the template learning by searching in a breadth-first fashion
 
-It implements the abstract functions in the following way:
-  - initialise_pool: creates an empty OrderedSet
-  - put_into_pool: adds to the ordered set
-  - get_from_pool: returns the first elements in the ordered set
-  - evaluate: returns the number of covered positive examples and 0 if any negative example is covered
-  - stop inner search: stops if the provided score of a clause is bigger than zero 
-  - process expansions: removes from the hypothesis space all clauses that have no solutions
-
-The learner does not handle recursions correctly!
-"""
-
-
-class NeuralSearcher(AbstractLearner):
-    def __init__(self, solver_instance: Prolog, model_location, max_body_literals=4, amount_chosen_from_nn=3):
-        super().__init__(solver_instance)
+class AbstractNeuralSearcher(AbstractSearcher):
+    def __init__(self, solver_instance: Prolog, primitives, model_location, max_body_literals=4,
+                 amount_chosen_from_nn=3):
+        super().__init__(solver_instance, primitives)
         self._max_body_literals = max_body_literals
         self.amount_chosen_from_nn = amount_chosen_from_nn
         self.model = keras.models.load_model(model_location, compile=True)
@@ -72,13 +61,39 @@ class NeuralSearcher(AbstractLearner):
         else:
             return False
 
+    @abstractmethod
+    def filter_examples(self, examples: Task) -> Task:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def process_output(self, nn_output):
+        raise NotImplementedError()
+
+    @abstractmethod
+    def update_score(self, current_score_vector, new_score_vector):
+        raise NotImplementedError()
+
     def get_expansions(
             self, examples: Task, node: typing.Union[Clause, Recursion, Body]
     ) -> typing.Sequence[typing.Union[Clause, Body, Procedure]]:
-        # TODO Get expansions for the current clause using the neural network
-        #output = self.model.predict(get_nn_input_data(node, example, self.current_preds))
-        # TODO Get best primitive extensions and get their expansions
-        raise NotImplementedError()
+        scores = []
+
+        # Filter examples (e.g. only use positive/negative examples)
+        examples = self.filter_examples(examples)
+
+        # Calculate nn output for each example
+        for example in examples:
+            # Update output
+            nn_output = self.model.predict(get_nn_input_data(node, example, self.current_primitives))[0]
+            nn_output = self.process_output(nn_output)
+
+            # Update score vector
+            scores = self.get_primitive_scores(scores, nn_output)
+
+        # Return x best primitives
+        indices = numpy.argpartition(scores, -self.amount_chosen_from_nn)[-self.amount_chosen_from_nn:]
+
+        return self.current_primitives[indices]
 
     def process_expansions(self, examples: Task, exps: typing.Sequence[Clause],
                            hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:

@@ -1,6 +1,9 @@
 import string
 import typing
 from abc import ABC, abstractmethod
+
+import numpy
+
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.task import Task, Knowledge
 from loreleai.reasoning.lp.prolog import Prolog
@@ -15,12 +18,12 @@ from loreleai.language.lp import (
 )
 
 
-class AbstractLearner(ABC):
+class AbstractSearcher(ABC):
 
-    def __init__(self, solver_instance: Prolog):
+    def __init__(self, solver_instance: Prolog, primitives):
         self._solver = solver_instance
+        self.current_primitives = numpy.array(primitives)
         self._candidate_pool = []
-        self.current_preds = set()
 
     def _assert_knowledge(self, knowledge: Knowledge):
         """
@@ -155,7 +158,7 @@ class AbstractLearner(ABC):
 
         return current_cand
 
-    def learn(self, examples: Task, background_location: string, predicates, hypothesis_space: TopDownHypothesisSpace):
+    def learn(self, examples: Task, background_location: string, hypothesis_space: TopDownHypothesisSpace):
         """
         General learning loop
         """

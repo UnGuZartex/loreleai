@@ -37,7 +37,6 @@ model = keras.models.load_model("../utility/Saved_model", compile=True)
 print(model.summary())
 
 # Een prediction met de neural network kan je als volgt doen:
-
 output = model.predict(get_nn_input_data(hs.get_current_candidate()[0], random.sample(test["b45"],1)[0], filtered_predicates))
 
 print(output[0])
