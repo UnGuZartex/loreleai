@@ -51,4 +51,9 @@ def train_task(task_id: string):
     print(program)
 
 
-train_task("b45")
+def main():
+    train_task("b45")
+
+
+if __name__ == "__main__":
+    main()

@@ -18,7 +18,7 @@ from loreleai.language.lp import (
     Body,
     Recursion,
 )
-from utility.datapreprocessor import get_nn_input_data
+from utility.datapreprocessor import get_nn_input_data, clause_to_list, find_difference
 
 
 class AbstractNeuralSearcher(AbstractSearcher):
@@ -33,7 +33,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         self._candidate_pool = OrderedSet()
 
     def put_into_pool(self, candidates: typing.Union[Clause, Procedure, typing.Sequence]) -> None:
-        # TODO: 3: Put them accordingly in the pool after processing the expansions
+        # TODO: Put them accordingly in the pool after processing the expansions (anders miss dan breedte eerst?)
         if isinstance(candidates, Clause):
             self._candidate_pool.add(candidates)
         else:
@@ -73,8 +73,8 @@ class AbstractNeuralSearcher(AbstractSearcher):
     def update_score(self, current_score_vector, new_score_vector):
         raise NotImplementedError()
 
-    def get_expansions(
-            self, examples: Task, node: typing.Union[Clause, Recursion, Body]
+    def get_best_primitives(
+            self, examples: Task, current_cand: typing.Union[Clause, Recursion, Body]
     ) -> typing.Sequence[typing.Union[Clause, Body, Procedure]]:
         scores = []
 
@@ -84,7 +84,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         # Calculate nn output for each example
         for example in examples:
             # Update output
-            nn_output = self.model.predict(get_nn_input_data(node, example, self.current_primitives))[0]
+            nn_output = self.model.predict(get_nn_input_data(current_cand, example, self.current_primitives))[0]
             nn_output = self.process_output(nn_output)
 
             # Update score vector
@@ -95,8 +95,11 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         return self.current_primitives[indices]
 
-    def process_expansions(self, examples: Task, exps: typing.Sequence[Clause],
-                           hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
+    def process_expansions(self, current_cand: typing.Union[Clause, Procedure], examples: Task,
+                           exps: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
+        # Encode current candidate to list
+        encoded_current_cand = clause_to_list(current_cand, primitives)
+
         # eliminate every clause with more body literals than allowed
         exps = [cl for cl in exps if len(cl) <= self._max_body_literals]
 
@@ -106,8 +109,12 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         for ind in range(len(exps)):
             if exps[ind][1]:
-                # keep it if it has solutions
-                new_exps.append(exps[ind][0])
+                # TODO check of deze [0] klopt
+                encoded_exp = clause_to_list(exps[ind][0], primitives)
+                prim_index = find_difference(encoded_current_cand, encoded_exp)
+                if self.current_primitives[prim_index] in primitives:
+                    # keep it if it has solutions and if it has an allowed primitive
+                    new_exps.append(exps[ind][0])
             else:
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])

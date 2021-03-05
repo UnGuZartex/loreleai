@@ -61,7 +61,7 @@ def encode_clause(current_cand: Clause, filtered_predicates):
     return encoded_clause
 
 
-def encode_string(string: List):  # TODO hier dus goeie encoding voor maken idk hoe though
+def encode_string(string: List):
     result = [0] * MAX_STRING_LENGTH
     arguments = string.arguments
     for index in range(len(arguments)):

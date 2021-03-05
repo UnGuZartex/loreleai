@@ -103,8 +103,9 @@ class AbstractSearcher(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def process_expansions(self, examples: Task, exps: typing.Sequence[Clause],
-                           hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
+    def process_expansions(self, current_cand: typing.Union[Clause, Procedure], examples: Task,
+                           exps: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace) \
+            -> typing.Sequence[Clause]:
         """
         Processes the expansions of a clause
         It can be used to eliminate useless expansions (e.g., the one that have no solution, ...)
@@ -114,9 +115,7 @@ class AbstractSearcher(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def get_expansions(
-            self, examples: Task, node: typing.Union[Clause, Recursion, Body]
-    ) -> typing.Sequence[typing.Union[Clause, Body, Procedure]]:
+    def get_best_primitives(self, examples: Task, node: typing.Union[Clause, Recursion, Body]):
         raise NotImplementedError()
 
     def _learn_one_clause(self, examples: Task, hypothesis_space: TopDownHypothesisSpace) -> Clause:
@@ -140,20 +139,17 @@ class AbstractSearcher(ABC):
                 len(self._candidate_pool) > 0 and not self.stop_inner_search(score, examples, current_cand)):
             # get first candidate from the pool
             current_cand = self.get_from_pool()
-            # expand the candidate
-            #_ = hypothesis_space.expand(current_cand)
-            # this is important: .expand() method returns candidates only the first time it is called;
-            #     if the same node is expanded the second time, it returns the empty list
-            #     it is safer than to use the .get_successors_of method
-            #exps = hypothesis_space.get_successors_of(current_cand)
+
+            # expand the candidate and get possible expansions
+            _ = hypothesis_space.expand(current_cand)
+            exps = hypothesis_space.get_successors_of(current_cand)
 
             # Get scores for primitives using current candidate and each example
-            exps = self.get_expansions(examples, current_cand)
-            exps = self.process_expansions(examples, exps, hypothesis_space)
+            primitives = self.get_best_primitives(examples, current_cand)
+            exps = self.process_expansions(current_cand, examples, exps, primitives, hypothesis_space)
 
             # add into pool
             self.put_into_pool(exps)
-
             score = self.evaluate(examples, current_cand)
 
         return current_cand
