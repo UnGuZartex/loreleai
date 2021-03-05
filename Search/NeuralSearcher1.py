@@ -26,13 +26,11 @@ class NeuralSearcher1(AbstractNeuralSearcher):
         super().__init__(solver_instance, primitives, model_location, max_body_literals=4, amount_chosen_from_nn=3)
 
     def filter_examples(self, examples: Task) -> Task:
-        # TODO
-        raise NotImplementedError()
+        pos, _ = examples.get_examples()
+        return pos
 
     def process_output(self, nn_output):
-        # TODO
-        raise NotImplementedError()
+        return nn_output
 
     def update_score(self, current_score_vector, new_score_vector):
-        # TODO
-        raise NotImplementedError()
+        raise current_score_vector + new_score_vector
