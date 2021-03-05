@@ -1,3 +1,4 @@
+import string
 import typing
 from abc import ABC, abstractmethod
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
@@ -19,6 +20,7 @@ class AbstractLearner(ABC):
     def __init__(self, solver_instance: Prolog):
         self._solver = solver_instance
         self._candidate_pool = []
+        self.current_preds = set()
 
     def _assert_knowledge(self, knowledge: Knowledge):
         """
@@ -110,7 +112,7 @@ class AbstractLearner(ABC):
 
     @abstractmethod
     def get_expansions(
-            self, node: typing.Union[Clause, Recursion, Body]
+            self, examples: Task, node: typing.Union[Clause, Recursion, Body]
     ) -> typing.Sequence[typing.Union[Clause, Body, Procedure]]:
         raise NotImplementedError()
 
@@ -143,7 +145,7 @@ class AbstractLearner(ABC):
             #exps = hypothesis_space.get_successors_of(current_cand)
 
             # Get scores for primitives using current candidate and each example
-            exps = self.get_expansions(current_cand)
+            exps = self.get_expansions(examples, current_cand)
             exps = self.process_expansions(examples, exps, hypothesis_space)
 
             # add into pool
@@ -153,14 +155,12 @@ class AbstractLearner(ABC):
 
         return current_cand
 
-    def learn(self, examples: Task, knowledge: Knowledge, hypothesis_space: TopDownHypothesisSpace):
+    def learn(self, examples: Task, background_location: string, predicates, hypothesis_space: TopDownHypothesisSpace):
         """
         General learning loop
         """
 
-        # self._assert_knowledge(knowledge)
-        self._solver.consult(
-            "../inputfiles/StringTransformations_BackgroundKnowledge.pl")  # TODO Look if this is good enough for our background knowledge
+        self._solver.consult(background_location)
         final_program = []
         examples_to_use = examples
         pos, _ = examples_to_use.get_examples()

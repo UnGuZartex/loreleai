@@ -6,6 +6,7 @@ from Search.AbstractLearner import AbstractLearner
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.task import Task
 from loreleai.reasoning.lp.prolog import Prolog
+from tensorflow import keras
 
 from loreleai.language.lp import (
     Predicate,
@@ -15,6 +16,7 @@ from loreleai.language.lp import (
     Body,
     Recursion,
 )
+from utility.datapreprocessor import get_nn_input_data
 
 """
 A simple breadth-first top-down learner: it extends the template learning by searching in a breadth-first fashion
@@ -32,10 +34,11 @@ The learner does not handle recursions correctly!
 
 
 class NeuralSearcher(AbstractLearner):
-
-    def __init__(self, solver_instance: Prolog, max_body_literals=4):
+    def __init__(self, solver_instance: Prolog, model_location, max_body_literals=4, amount_chosen_from_nn=3):
         super().__init__(solver_instance)
         self._max_body_literals = max_body_literals
+        self.amount_chosen_from_nn = amount_chosen_from_nn
+        self.model = keras.models.load_model(model_location, compile=True)
 
     def initialise_pool(self):
         self._candidate_pool = OrderedSet()
@@ -70,9 +73,10 @@ class NeuralSearcher(AbstractLearner):
             return False
 
     def get_expansions(
-            self, node: typing.Union[Clause, Recursion, Body]
+            self, examples: Task, node: typing.Union[Clause, Recursion, Body]
     ) -> typing.Sequence[typing.Union[Clause, Body, Procedure]]:
         # TODO Get expansions for the current clause using the neural network
+        #output = self.model.predict(get_nn_input_data(node, example, self.current_preds))
         # TODO Get best primitive extensions and get their expansions
         raise NotImplementedError()
 
