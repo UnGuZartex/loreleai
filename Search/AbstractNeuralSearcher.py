@@ -92,6 +92,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         # Return x best primitives
         indices = numpy.argpartition(scores, -self.amount_chosen_from_nn)[-self.amount_chosen_from_nn:]
 
+        # TODO beste x volgens ordening of gwn zoals nu, beste x random volgorde?
         return self.current_primitives[indices]
 
     def process_expansions(self, current_cand: typing.Union[Clause, Procedure], examples: Task,
