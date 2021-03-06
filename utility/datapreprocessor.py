@@ -131,8 +131,12 @@ def get_output_data(current_cand, expansions, example,
 
     for index in range(len(total_occurrences)):
         if total_occurrences[index] != 0:
-            total_covered[index] /= total_occurrences[index]
-            covered[index] = 1
+            if total_covered[index] != 0:
+                total_covered[index] /= total_occurrences[index]
+                covered[index] = 1
+            else:
+                total_covered[index] = 0
+                covered[index] = 0
         else:
             total_covered[index] = 0
             covered[index] = 0
@@ -142,7 +146,7 @@ def get_output_data(current_cand, expansions, example,
 def remove_random(exps):
     expa = []
     for exp in exps:
-        if random.random() < 0.1:
+        if random.random() < 0.3:
             expa.append(exp)
     return expa
 
@@ -151,9 +155,9 @@ def main():
     f1 = open("processeddata_average.csv", "a")
     f2 = open("processeddata_covered.csv", "a")
 
-    amount_of_clauses = 2
+    amount_of_clauses = 10000
     chosen_pred = "t"
-    minlength = 2
+    minlength = 1
 
     _, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl",
                                                  chosen_pred)
@@ -188,10 +192,10 @@ def main():
         exps = remove_random(exps)
         put_into_pool(possible_candidates, exps)
 
-        if random.random() < 0.1 and len(current_cand) > minlength:
+        if random.random() < 0.2 and len(current_cand) > minlength:
             for problem in train:
                 for example in train.get(problem):
-                    if random.random() < 0.1:
+                    if random.random() < 0.25:
                         input = get_input_data(current_cand, example, filtered_predicates)
                         output, output2 = get_output_data(current_cand, exps, example, filtered_predicates)
                         f1.write(input + "," + output + "\n")
