@@ -93,9 +93,9 @@ def get_nn_input_data(current_cand: Clause, example: Atom, filtered_predicates):
     inputstring = get_input_data(current_cand, example, filtered_predicates)
     line = inputstring.replace("\n", "")
     list_of_floats = [float(item) for item in line.split(",")]
-    x_clause.append(list_of_floats[:24])
-    x_input.append(list_of_floats[24:144])
-    x_output.append(list_of_floats[144:])
+    x_clause.append(list_of_floats[:45])
+    x_input.append(list_of_floats[45:165])
+    x_output.append(list_of_floats[165:])
     x_clause = numpy.array(x_clause)
     x_input = numpy.array(x_input)
     x_output = numpy.array(x_output)
