@@ -119,7 +119,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
                     # TODO miss beter op moment daje hem uit pool neemt (minder berekeningen, stel je overloopt ze
                     #  nie allemaal)
-                    self.set_example_weights(current_cand, current_exp)
+                    self.set_example_weights(current_cand, current_exp, examples)
             else:
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])
