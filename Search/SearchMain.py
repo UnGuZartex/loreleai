@@ -55,7 +55,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     prolog = SWIProlog()
     learner = NeuralSearcher1(solver_instance=prolog, primitives=filtered_predicates,
                               model_location="../utility/Saved_model", max_body_literals=5,
-                              amount_chosen_from_nn=4)
+                              amount_chosen_from_nn=1)
 
     program = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
     print(program)

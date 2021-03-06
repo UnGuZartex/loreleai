@@ -160,6 +160,7 @@ class AbstractSearcher(ABC):
             # add into pool
             self.put_into_pool(exps)
             score = self.evaluate(examples, current_cand)
+            print(len(current_cand))
 
         return current_cand
 
