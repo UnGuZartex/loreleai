@@ -75,7 +75,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
     def get_best_primitives(
             self, examples: Task, current_cand: typing.Union[Clause, Recursion, Body]
     ) -> typing.Sequence[typing.Union[Clause, Body, Procedure]]:
-        scores = []
+        scores = [0]*22
 
         # Filter examples (e.g. only use positive/negative examples)
         examples = self.filter_examples(examples)
@@ -111,7 +111,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
             if exps[ind][1]:
                 current_exp = exps[ind][0]
                 # TODO check of deze [0] klopt
-                encoded_exp = clause_to_list(current_exp, primitives)
+                encoded_exp = clause_to_list(current_exp, primitives.tolist())
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
                 if self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive

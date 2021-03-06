@@ -37,11 +37,14 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     # Calculate predicates
     total_predicates = []
     filtered_predicates = []
+    print(predicates)
     for predicate in predicates:
         if predicate.name not in ["s", task_id] and predicate not in filtered_predicates:
             total_predicates.append(
                 lambda x, predicate=predicate: plain_extension(x, predicate, connected_clauses=True))
             filtered_predicates.append(predicate)
+
+    print(filtered_predicates)
 
     # TODO recursion
     # create the hypothesis space
@@ -52,7 +55,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
 
     # create Prolog and learner instance
     prolog = SWIProlog()
-    learner = NeuralSearcher1(solver_instance=prolog, primitives=total_predicates,
+    learner = NeuralSearcher1(solver_instance=prolog, primitives=filtered_predicates,
                               model_location="../utility/Saved_model", max_body_literals=3,
                               amount_chosen_from_nn=3)
 

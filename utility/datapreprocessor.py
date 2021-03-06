@@ -26,6 +26,7 @@ def clause_to_list(current_cand: Clause, filtered_predicates):
     body = current_cand.get_body()
     listencoding = [0] * len(filtered_predicates)
     for predicate in body.get_predicates():
+        print(filtered_predicates)
         listencoding[filtered_predicates.index(predicate)] += 1
     return listencoding
 
