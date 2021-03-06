@@ -13,7 +13,7 @@ output_model = keras.Input(shape=(120,), dtype='int32')
 embedded_output = layers.Embedding(128, 64, input_length=120)(output_model)
 encoded_output = layers.LSTM(64)(embedded_output)
 
-clause_input = keras.Input(shape=(24,), dtype='float32')
+clause_input = keras.Input(shape=(45,), dtype='float32')
 
 merged = keras.layers.concatenate([clause_input, encoded_input, encoded_output])
 hidden = keras.layers.Dense(100, activation='relu')(merged)
@@ -34,14 +34,14 @@ def fetch_data():
     x_input = []
     x_output = []
     y = []
-    with open("processeddata.csv", "r") as f:
+    with open("processeddata_average.csv", "r") as f:
         for line in f.readlines():
             line = line.replace("\n", "")
             list_of_floats = [float(item) for item in line.split(",")]
             y.append(list_of_floats[-22:])
-            x_clause.append(list_of_floats[:24])
-            x_input.append(list_of_floats[24:144])
-            x_output.append(list_of_floats[144:-22])
+            x_clause.append(list_of_floats[:45])
+            x_input.append(list_of_floats[45:165])
+            x_output.append(list_of_floats[165:-22])
 
     x_clause = numpy.array(x_clause)
     x_input = numpy.array(x_input)

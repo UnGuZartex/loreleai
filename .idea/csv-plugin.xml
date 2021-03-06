@@ -10,6 +10,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/utility/datapreprocessor.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/utility/processeddata.csv">
           <value>
             <Attribute>

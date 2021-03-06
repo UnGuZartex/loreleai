@@ -30,34 +30,34 @@ def clause_to_list(current_cand: Clause, filtered_predicates):
     return listencoding
 
 
-def var_coeff(current_cand: Clause):
+def var_coeff(current_cand: Clause, filtered_predicates):
     body = current_cand.get_body()
     allliterals = body.get_literals()
     totalliterals = len(allliterals)
-    connections = {}
+    connections = [0]*len(filtered_predicates)
     for literal in allliterals:
-        all_variables = literal.get_variables()
-        for i in range(len(all_variables)):
-            for j in range(i, len(all_variables)):
-                if all_variables[i] != all_variables[j]:
-                    if not connections.get(all_variables[i]):
-                        connections[all_variables[i]] = list()
-                    connections.get(all_variables[i]).append(all_variables[j])
-    diff_vars = len(connections)
-    full_combined = factorial(diff_vars) * totalliterals
-    total_connections = 0
-    for var in connections:
-        total_connections += len(connections.get(var))
-    if full_combined == 0:
-        return 0
-    return str(total_connections / full_combined)
+        all_variables1 = literal.get_variables()
+        index = filtered_predicates.index(literal.get_predicate())
+        for literal2 in allliterals:
+            if literal != literal2:
+                all_variables2 = literal2.get_variables()
+                for variable in all_variables1:
+                    if variable in all_variables2:
+                        connections[index] += 1
+                        break
+    for index in range(len(connections)):
+        if totalliterals > 1:
+            connections[index] /= (totalliterals-1)
+        else:
+            connections[index] = 0
+    return ",".join([str(elem) for elem in connections])
 
 
 def encode_clause(current_cand: Clause, filtered_predicates):
     listencoding = clause_to_list(current_cand, filtered_predicates)
     encoded_clause = ",".join([str(elem) for elem in listencoding])
     encoded_clause += "," + str(len(current_cand))
-    encoded_clause += "," + str(var_coeff(current_cand))
+    encoded_clause += "," + str(var_coeff(current_cand, filtered_predicates))
     return encoded_clause
 
 
@@ -121,35 +121,54 @@ def get_output_data(current_cand, expansions, example,
         clause_index = find_difference(encoded_current_cand, encoded_expansion)
         if clause_index:
             total_occurrences[clause_index] += 1
-            prolog.consult("../inputfiles/StringTransformations_BackgroundKnowledge.pl")
             prolog.asserta(expansion)
             if prolog.has_solution(example):
                 total_covered[clause_index] += 1
             prolog.retract(expansion)
 
+    covered = [0] * len(filtered_predicates)
+
     for index in range(len(total_occurrences)):
         if total_occurrences[index] != 0:
-            total_covered[index] /= total_occurrences[index]
+            if total_covered[index] != 0:
+                total_covered[index] /= total_occurrences[index]
+                covered[index] = 1
+            else:
+                total_covered[index] = 0
+                covered[index] = 0
         else:
             total_covered[index] = 0
-    return ",".join([str(elem) for elem in total_covered])
+            covered[index] = 0
+    return ",".join([str(elem) for elem in total_covered]), ",".join([str(elem) for elem in covered])
 
 
-def remove_random(exps):
-    expa = []
-    for exp in exps:
-        if random.random() < 0.1:
-            expa.append(exp)
-    return expa
+def process_expansions(exps: typing.Sequence[Clause],
+                       hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
+    # check if every clause has solutions
+    exps = [(cl, prolog.has_solution(*cl.get_body().get_literals())) for cl in exps]
+    new_exps = []
 
+    for ind in range(len(exps)):
+        if exps[ind][1]:
+            # keep it if it has solutions
+            new_exps.append(exps[ind][0])
+        else:
+            # remove from hypothesis space if it does not
+            hypothesis_space.remove(exps[ind][0])
+
+    return new_exps
 
 def main():
-    f = open("processeddata.csv", "a")
-    amount_of_clauses = 2
-    chosen_pred = "t"
-    minlength = 2
+    f1 = open("processeddata_average.csv", "a")
+    f2 = open("processeddata_covered.csv", "a")
+    prolog.consult("../inputfiles/StringTransformations_BackgroundKnowledge.pl")
 
-    backgroundknow, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl",
+    amount_of_clauses = 500
+    chosen_pred = "t"
+    minlength = 0
+    max_factor_per_length = 4
+
+    _, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl",
                                                  chosen_pred)
     train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train_task")
 
@@ -169,9 +188,10 @@ def main():
     clauses_used = 0
     possible_candidates = OrderedSet()
     put_into_pool(possible_candidates, hs.get_current_candidate())
+    amount_of_length = 0
+    previouslength = 0
 
     while clauses_used < amount_of_clauses:
-
         current_cand = possible_candidates.pop(0)
         # expand the candidate
         _ = hs.expand(current_cand)
@@ -179,17 +199,23 @@ def main():
         #     if the same node is expanded the second time, it returns the empty list
         #     it is safer than to use the .get_successors_of method
         exps = hs.get_successors_of(current_cand)
-        exps = remove_random(exps)
-        put_into_pool(possible_candidates, exps)
+        expa = process_expansions(exps,hs)
+        put_into_pool(possible_candidates, expa)
 
-        if random.random() < 0.1 and len(current_cand) > minlength:
+        if previouslength < len(current_cand):
+            amount_of_length = 0
+
+        if random.random() < 0.5 and len(current_cand) > minlength and amount_of_length < max_factor_per_length*len(current_cand):
             for problem in train:
                 for example in train.get(problem):
-                    if random.random() < 0.1:
+                    if random.random() < 0.25:
                         input = get_input_data(current_cand, example, filtered_predicates)
-                        output = get_output_data(current_cand, exps, example, filtered_predicates)
-                        f.write(input + "," + output + "\n")
+                        output, output2 = get_output_data(current_cand, expa, example, filtered_predicates)
+                        f1.write(input + "," + output + "\n")
+                        f2.write(input + "," + output2 + "\n")
             clauses_used += 1
+            amount_of_length += 1
+        previouslength = len(current_cand)
 
 if __name__ == "__main__":
     main()
