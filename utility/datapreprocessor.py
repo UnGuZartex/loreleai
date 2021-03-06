@@ -61,7 +61,7 @@ def encode_clause(current_cand: Clause, filtered_predicates):
     return encoded_clause
 
 
-def encode_string(string: List):  # TODO hier dus goeie encoding voor maken idk hoe though
+def encode_string(string: List):
     result = [0] * MAX_STRING_LENGTH
     arguments = string.arguments
     for index in range(len(arguments)):
@@ -127,12 +127,16 @@ def get_output_data(current_cand, expansions, example,
                 total_covered[clause_index] += 1
             prolog.retract(expansion)
 
+    covered = [0] * len(filtered_predicates)
+
     for index in range(len(total_occurrences)):
         if total_occurrences[index] != 0:
             total_covered[index] /= total_occurrences[index]
+            covered[index] = 1
         else:
             total_covered[index] = 0
-    return ",".join([str(elem) for elem in total_covered])
+            covered[index] = 0
+    return ",".join([str(elem) for elem in total_covered]), ",".join([str(elem) for elem in covered])
 
 
 def remove_random(exps):
@@ -144,12 +148,14 @@ def remove_random(exps):
 
 
 def main():
-    f = open("processeddata.csv", "a")
+    f1 = open("processeddata_average.csv", "a")
+    f2 = open("processeddata_covered.csv", "a")
+
     amount_of_clauses = 2
     chosen_pred = "t"
     minlength = 2
 
-    backgroundknow, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl",
+    _, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl",
                                                  chosen_pred)
     train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train_task")
 
@@ -187,8 +193,9 @@ def main():
                 for example in train.get(problem):
                     if random.random() < 0.1:
                         input = get_input_data(current_cand, example, filtered_predicates)
-                        output = get_output_data(current_cand, exps, example, filtered_predicates)
-                        f.write(input + "," + output + "\n")
+                        output, output2 = get_output_data(current_cand, exps, example, filtered_predicates)
+                        f1.write(input + "," + output + "\n")
+                        f2.write(input + "," + output2 + "\n")
             clauses_used += 1
 
 
