@@ -22,9 +22,9 @@ output = keras.layers.Dense(22, activation='sigmoid')(hidden2)
 
 model = keras.Model(inputs=[clause_input, input_model, output_model], outputs=output)
 
-model.compile(optimizer='adam',
-    loss='mean_absolute_error',
-    metrics=['mean_absolute_error'])
+model.compile(optimizer='SGD',
+    loss='mean_squared_error',
+    metrics=['mean_squared_error'])
 
 print("fetching data")
 
