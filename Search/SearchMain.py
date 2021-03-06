@@ -23,11 +23,11 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     neg_amount = len(pos) * pos_multiplier + neg_example_offset
     for i in range(neg_amount):
         # Choose random task to sample neg example
-        chosen_task_id = random.choice(list(test.values()))
+        chosen_task_id = random.choice(list(test.keys()))
 
         # Choose random example and remove so it doesn't get picked again
-        chosen_neg_example = random.choice(test[chosen_task_id])
-        test[chosen_task_id].pop(chosen_task_id)
+        chosen_neg_example = random.sample(test[chosen_task_id],1)[0]
+        test[chosen_task_id].remove(chosen_neg_example)
 
         # Add example to negative example list
         neg.add(chosen_neg_example)
@@ -61,7 +61,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
 
 
 def main():
-    train_task("b45")
+    train_task("b45", 1,1)
 
 
 if __name__ == "__main__":
