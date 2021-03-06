@@ -47,7 +47,6 @@ class AbstractSearcher(ABC):
         if len(clause.get_body().get_literals()) == 0:
             return []
         else:
-
             self._solver.asserta(clause)
             covered_examples = []
             pos, neg = examples.get_examples()
@@ -182,11 +181,15 @@ class AbstractSearcher(ABC):
             # update covered positive examples
             covered = self._execute_program(examples, cl)
 
+            print(len(pos))
             pos, neg = examples_to_use.get_examples()
             pos = pos.difference(covered)
+
+            print(len(pos))
 
             examples_to_use = Task(pos, neg)
             # Reset example weights
             self.example_weights = {}
+            print(final_program)
 
         return final_program

@@ -38,13 +38,14 @@ class NeuralSearcher1(AbstractNeuralSearcher):
 
     def get_initial_weights(self, examples: Task) -> dict:
         example_weights = {}
-        for example in examples:
-            example_weights[example] = 1
+        for examples in examples.get_examples():
+            for example in examples:
+                example_weights[example] = 1
 
         return example_weights
 
     def set_example_weights(self, previous_cand: typing.Union[Clause, Procedure],
                             current_cand: typing.Union[Clause, Procedure], examples: Task):
         # TODO update weights
-        self.example_weights[current_cand] = self.get_initial_weights(self, examples)
+        self.example_weights[current_cand] = self.get_initial_weights(examples)
 

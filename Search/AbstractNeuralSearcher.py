@@ -83,7 +83,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         # Calculate nn output for each example
         for example in examples:
             # Update output
-            nn_output = self.model.predict(get_nn_input_data(current_cand, example, self.current_primitives))[0]
+            nn_output = self.model.predict(get_nn_input_data(current_cand, example, self.current_primitives.tolist()))[0]
             nn_output = self.process_output(nn_output)
 
             # Update score vector
@@ -98,7 +98,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
     def process_expansions(self, current_cand: typing.Union[Clause, Procedure], examples: Task,
                            exps: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
         # Encode current candidate to list
-        encoded_current_cand = clause_to_list(current_cand, primitives)
+        encoded_current_cand = clause_to_list(current_cand, self.current_primitives.tolist())
 
         # eliminate every clause with more body literals than allowed
         exps = [cl for cl in exps if len(cl) <= self._max_body_literals]
@@ -111,7 +111,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
             if exps[ind][1]:
                 current_exp = exps[ind][0]
                 # TODO check of deze [0] klopt
-                encoded_exp = clause_to_list(current_exp, primitives.tolist())
+                encoded_exp = clause_to_list(current_exp, self.current_primitives.tolist())
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
                 if self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
