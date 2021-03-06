@@ -39,9 +39,9 @@ def fetch_data():
             line = line.replace("\n", "")
             list_of_floats = [float(item) for item in line.split(",")]
             y.append(list_of_floats[-22:])
-            x_clause.append(list_of_floats[:24])
-            x_input.append(list_of_floats[24:144])
-            x_output.append(list_of_floats[144:-22])
+            x_clause.append(list_of_floats[:45])
+            x_input.append(list_of_floats[45:165])
+            x_output.append(list_of_floats[165:-22])
 
     x_clause = numpy.array(x_clause)
     x_input = numpy.array(x_input)
