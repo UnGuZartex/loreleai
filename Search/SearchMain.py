@@ -1,3 +1,4 @@
+import random
 import string
 
 from Search.NeuralSearcher1 import NeuralSearcher1
@@ -11,13 +12,26 @@ from loreleai.learning.task import Task, Knowledge
 from loreleai.reasoning.lp.prolog import SWIProlog, Prolog
 
 
-def train_task(task_id: string):
+def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     backgroundknow, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl", task_id)
-    train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train_task")
+    #train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train_task")
     test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
 
-    pos = test.get("b45")
-    neg = set()  # TODO negatieve voorbeelden genereren
+    neg = set()
+    pos = test.get(task_id)
+    test.pop(task_id)
+    neg_amount = len(pos) * pos_multiplier + neg_example_offset
+    for i in range(neg_amount):
+        # Choose random task to sample neg example
+        chosen_task_id = random.choice(list(test.values()))
+
+        # Choose random example and remove so it doesn't get picked again
+        chosen_neg_example = random.choice(test[chosen_task_id])
+        test[chosen_task_id].pop(chosen_task_id)
+
+        # Add example to negative example list
+        neg.add(chosen_neg_example)
+
     task = Task(positive_examples=pos, negative_examples=neg)
 
     # Calculate predicates
