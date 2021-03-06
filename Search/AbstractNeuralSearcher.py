@@ -87,7 +87,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
             nn_output = self.process_output(nn_output)
 
             # Update score vector
-            scores = self.get_primitive_scores(scores, nn_output)
+            scores = self.update_score(scores, nn_output)
 
         # Return x best primitives
         indices = numpy.argpartition(scores, -self.amount_chosen_from_nn)[-self.amount_chosen_from_nn:]
