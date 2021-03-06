@@ -16,8 +16,8 @@ encoded_output = layers.LSTM(64)(embedded_output)
 clause_input = keras.Input(shape=(45,), dtype='float32')
 
 merged = keras.layers.concatenate([clause_input, encoded_input, encoded_output])
-hidden = keras.layers.Dense(100, activation='relu')(merged)
-hidden2 = keras.layers.Dense(100, activation='relu')(hidden)
+hidden = keras.layers.Dense(200, activation='relu')(merged)
+hidden2 = keras.layers.Dense(200, activation='relu')(hidden)
 output = keras.layers.Dense(22, activation='sigmoid')(hidden2)
 
 model = keras.Model(inputs=[clause_input, input_model, output_model], outputs=output)
