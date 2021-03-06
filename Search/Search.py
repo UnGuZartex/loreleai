@@ -1,10 +1,5 @@
 import string
-import typing
-from abc import ABC, abstractmethod
 
-from orderedset import OrderedSet
-
-from Search.AbstractNeuralSearcher import NeuralSearcher
 from Search.NeuralSearcher1 import NeuralSearcher1
 from filereaders.knowledgereader import createKnowledge
 from filereaders.taskreader import readPositiveOfType
