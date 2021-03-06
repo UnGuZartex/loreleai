@@ -46,7 +46,10 @@ def var_coeff(current_cand: Clause, filtered_predicates):
                         connections[index] += 1
                         break
     for index in range(len(connections)):
-        connections[index] /= totalliterals
+        if totalliterals > 1:
+            connections[index] /= (totalliterals-1)
+        else:
+            connections[index] = 0
     return ",".join([str(elem) for elem in connections])
 
 
@@ -160,10 +163,10 @@ def main():
     f2 = open("processeddata_covered.csv", "a")
     prolog.consult("../inputfiles/StringTransformations_BackgroundKnowledge.pl")
 
-    amount_of_clauses = 10000
+    amount_of_clauses = 500
     chosen_pred = "t"
     minlength = 0
-    max_factor_per_length = 20
+    max_factor_per_length = 4
 
     _, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl",
                                                  chosen_pred)
@@ -212,6 +215,7 @@ def main():
                         f2.write(input + "," + output2 + "\n")
             clauses_used += 1
             amount_of_length += 1
+        previouslength = len(current_cand)
 
 
 main()
