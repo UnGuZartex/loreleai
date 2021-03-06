@@ -190,6 +190,5 @@ class AbstractSearcher(ABC):
             examples_to_use = Task(pos, neg)
             # Reset example weights
             self.example_weights = {}
-            print(final_program)
 
         return final_program
