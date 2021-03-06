@@ -146,7 +146,7 @@ def get_output_data(current_cand, expansions, example,
 def remove_random(exps):
     expa = []
     for exp in exps:
-        if random.random() < 0.3:
+        if random.random() < 0.1:
             expa.append(exp)
     return expa
 
