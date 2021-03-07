@@ -233,3 +233,19 @@ def are_variables_connected(atoms: Sequence[Atom]):
     del g
 
     return res
+
+def literal_exist_all_same_variables(atoms: Sequence[Atom]):
+    """
+    Checks whether the Variables in the clause are not all the same
+
+    Args:
+        atoms (Sequence[Atom]): atoms whose variables have to be checked
+
+    """
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        if len(vrs) != 1 and len(set(vrs)) == 1:
+            return True
+
+    return False
