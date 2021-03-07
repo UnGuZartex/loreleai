@@ -45,6 +45,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/utility/trainnetwork_covered.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
       </map>
     </option>
   </component>
