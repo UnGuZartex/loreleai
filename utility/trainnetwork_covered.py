@@ -34,7 +34,7 @@ def fetch_data():
     x_input = []
     x_output = []
     y = []
-    with open("processeddata_average.csv", "r") as f:
+    with open("processeddata_covered.csv", "r") as f:
         for line in f.readlines():
             line = line.replace("\n", "")
             list_of_floats = [float(item) for item in line.split(",")]
@@ -56,7 +56,7 @@ x_train, y_train = fetch_data()
 print("training model")
 model.fit(x_train, y_train, batch_size=100, epochs=30)
 
-model.save("Saved_model")
+model.save("Saved_model_covered")
 
 print(model.summary())
 
