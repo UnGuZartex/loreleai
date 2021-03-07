@@ -93,6 +93,10 @@ def has_duplicated_literal(head: Atom, body: Body) -> bool:
     """
     return len(body) != len(set(body.get_literals()))
 
-
+def has_all_same_vars_in_literal(head: Atom, body: Body) -> bool:
+    """
+    Returns True if there exists a literal with all same vars
+    """   
+    return literal_exist_all_same_variables([x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()])
 
 
