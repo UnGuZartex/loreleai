@@ -48,8 +48,9 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=total_predicates,
                                 head_constructor=c_pred("test_task", 1),
-                                expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
-                                                        lambda x, y: has_duplicated_literal(x, y)])
+                                expansion_hooks_keep=[lambda x, y: connected_clause(x, y)]
+                                expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y)]#,
+                                                        #lambda x, y: has_duplicated_literal(x, y)])
 
     # create Prolog and learner instance
     prolog = SWIProlog()
