@@ -48,9 +48,12 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=total_predicates,
                                 head_constructor=c_pred("test_task", 1),
+                                # TODO connected clause kan miss problemen hebben da ie geen nieuwe vars wil introducen, kweet eigl nie (check)
                                 expansion_hooks_keep=[lambda x, y: connected_clause(x, y)]
-                                expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y)]#,
-                                                        #lambda x, y: has_duplicated_literal(x, y)])
+                                expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
+                                                        lambda x, y: has_duplicated_literal(x, y),
+                                                        # TODO check op fouten lol :p 
+                                                        lambda x, y: has_all_same_vars_in_literal(x, y)]
 
     # create Prolog and learner instance
     prolog = SWIProlog()
