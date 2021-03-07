@@ -31,7 +31,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         self.model = keras.models.load_model(model_location, compile=True)
         
         # TODO param
-        self.filter_amount = 5
+        self.filter_amount = 2
 
     def initialise_pool(self):
         self._candidate_pool = OrderedSet()
@@ -112,8 +112,8 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         # check if every clause has solutions
         exps = [(cl, self._solver.has_solution(*cl.get_body().get_literals())) for cl in exps]
+        # TODO FOR SOME REASON VALLEN ER HIER WEG?
         new_exps = []
-
         for ind in range(len(exps)):
             if exps[ind][1]:
                 current_exp = exps[ind][0]
@@ -130,6 +130,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
             else:
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])
+
 
         new_exps = sorted(new_exps, key=cmp_to_key(Triplet.comparator))[:self.filter_amount]
         new_exps_real = []

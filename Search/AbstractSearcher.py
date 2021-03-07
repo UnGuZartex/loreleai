@@ -160,13 +160,12 @@ class AbstractSearcher(ABC):
 
             # Get scores for primitives using current candidate and each example
             primitives = self.get_best_primitives(examples, current_cand)
-            print(primitives)
             exps = self.process_expansions(current_cand, examples, exps, primitives, hypothesis_space)
 
             # add into pool
             self.put_into_pool(exps)
             score = self.evaluate(examples, current_cand)
-            print(len(current_cand))
+
 
         return current_cand
 
@@ -187,15 +186,13 @@ class AbstractSearcher(ABC):
 
             # update covered positive examples
             covered = self._execute_program(examples, cl)
-
-            print(len(pos))
             pos, neg = examples_to_use.get_examples()
             pos = pos.difference(covered)
 
-            print(len(pos))
 
             examples_to_use = Task(pos, neg)
             # Reset example weights
             self.example_weights = {}
+            print(final_program)
 
         return final_program
