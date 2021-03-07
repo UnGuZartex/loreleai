@@ -1,6 +1,3 @@
-
-set_prolog_flag(stack_limit, 4_294_967_296).
-
 is_empty(s([],_)).
 not_empty(s([_|_],_)).
 
