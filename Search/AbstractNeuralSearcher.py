@@ -58,15 +58,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
             return 0
         else:
             return len(covered_pos)
-        
-    def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[int, int]:
-        covered = self._execute_program(examples, clause)
-        pos, neg = examples.get_examples()
 
-        covered_pos = pos.intersection(covered)
-        covered_neg = neg.intersection(covered)
-        
-        return covered_pos, covered_neg
 
     def stop_inner_search(self, eval: typing.Union[int, float], examples: Task, clause: Clause) -> bool:
         if eval > 0:
@@ -129,7 +121,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
                 if self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
-                    new_exp = Triplet(current_exp, examples)
+                    new_exp = Triplet(current_exp, examples, self)
                     new_exps.append(new_exp)
 
                     # TODO miss beter op moment daje hem uit pool neemt (minder berekeningen, stel je overloopt ze
@@ -146,11 +138,23 @@ class AbstractNeuralSearcher(AbstractSearcher):
             new_exps_real.append(triple.exp)
         
         return new_exps_real
+
+    def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[int, int]:
+        covered = self._execute_program(examples, clause)
+        pos, neg = examples.get_examples()
+
+        covered_pos = pos.intersection(covered)
+        covered_neg = neg.intersection(covered)
+
+        return covered_pos, covered_neg
     
 class Triplet:
-    def __init__(self, exp, examples):
+
+
+    def __init__(self, exp, examples, neuralsearch: AbstractNeuralSearcher):
         self.exp=exp
-        self.pos, self.neg=self.evaluate_distinct(examples, exp)
+        self.pos, self.neg=neuralsearch.evaluate_distinct(examples, exp)
+        self.neuralsearch = neuralsearch
 
     def comparator(a, b):
         # Look at positive coverage
