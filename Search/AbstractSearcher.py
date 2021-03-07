@@ -142,12 +142,17 @@ class AbstractSearcher(ABC):
         # put initial candidates into the pool
         self.put_into_pool(hypothesis_space.get_current_candidate())
         current_cand = None
+        first = True
         score = -100
 
         while current_cand is None or (
                 len(self._candidate_pool) > 0 and not self.stop_inner_search(score, examples, current_cand)):
             # get first candidate from the pool
             current_cand = self.get_from_pool()
+
+            if first:
+                self.example_weights[current_cand] = self.get_initial_weights(examples)
+                first = False
 
             # expand the candidate and get possible expansions
             _ = hypothesis_space.expand(current_cand)

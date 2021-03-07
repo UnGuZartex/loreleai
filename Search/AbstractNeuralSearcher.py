@@ -69,7 +69,8 @@ class AbstractNeuralSearcher(AbstractSearcher):
         raise NotImplementedError()
 
     @abstractmethod
-    def update_score(self, current_score_vector, new_score_vector):
+    def update_score(self, current_cand: typing.Union[Clause, Recursion, Body], example,
+                     current_score_vector, new_score_vector):
         raise NotImplementedError()
 
     def get_best_primitives(
@@ -87,7 +88,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
             nn_output = self.process_output(nn_output)
 
             # Update score vector
-            scores = self.update_score(scores, nn_output)
+            scores = self.update_score(current_cand, example, scores, nn_output)
 
         # Return x best primitives
         indices = numpy.argpartition(scores, -self.amount_chosen_from_nn)[-self.amount_chosen_from_nn:]
@@ -110,7 +111,6 @@ class AbstractNeuralSearcher(AbstractSearcher):
         for ind in range(len(exps)):
             if exps[ind][1]:
                 current_exp = exps[ind][0]
-                # TODO check of deze [0] klopt
                 encoded_exp = clause_to_list(current_exp, self.current_primitives.tolist())
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
                 if self.current_primitives[prim_index] in primitives:
@@ -118,7 +118,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
                     new_exps.append(current_exp)
 
                     # TODO miss beter op moment daje hem uit pool neemt (minder berekeningen, stel je overloopt ze
-                    #  nie allemaal)
+                    #  nie allemaal), idk if possible though
                     self.set_example_weights(current_cand, current_exp, examples)
             else:
                 # remove from hypothesis space if it does not
