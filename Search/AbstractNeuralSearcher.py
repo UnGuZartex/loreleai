@@ -59,7 +59,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         else:
             return len(covered_pos)
         
-    def evaluate_distinct(self, examples: Task, clause: Clause) -> int, int:
+    def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[int, int]:
         covered = self._execute_program(examples, clause)
         pos, neg = examples.get_examples()
 
@@ -129,7 +129,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
                 if self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
-                    new_exp = Triple(current_exp, examples)
+                    new_exp = Triplet(current_exp, examples)
                     new_exps.append(new_exp)
 
                     # TODO miss beter op moment daje hem uit pool neemt (minder berekeningen, stel je overloopt ze
@@ -139,31 +139,32 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])
 
-        new_exps = sorted(new_exps, key=cmp_to_key(Triple.comparator))[:self.filter_amount]
+        new_exps = sorted(new_exps, key=cmp_to_key(Triplet.comparator))[:self.filter_amount]
         new_exps_real = []
         
-        for triple in new_exps
+        for triple in new_exps:
             new_exps_real.append(triple.exp)
         
         return new_exps_real
     
-    class Triplet:
-        def __init__(self, exp, examples):
-            self.exp=exp
-            self.pos, self.neg=self.evaluate_distinct(examples, exp)
-        
-        def comparator(a, b):
-            # Look at positive coverage
-            if a.pos > b.pos:
-                return 1
-            if a.pos < b.pos:
-                return -1
-            
-            # Look at negative coverage
-            if a.neg < b.neg:
-                return 1
-            if a.neg > b.neg:
-                return -1
-            
-            # Equal
-            return 0
+class Triplet:
+    def __init__(self, exp, examples):
+        self.exp=exp
+        self.pos, self.neg=self.evaluate_distinct(examples, exp)
+
+    def comparator(a, b):
+        # Look at positive coverage
+        if a.pos > b.pos:
+            return 1
+        if a.pos < b.pos:
+            return -1
+
+        # Look at negative coverage
+        if a.neg < b.neg:
+            return 1
+        if a.neg > b.neg:
+            return -1
+
+        # Equal
+        return 0
+
