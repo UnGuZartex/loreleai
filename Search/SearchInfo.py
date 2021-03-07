@@ -33,7 +33,7 @@ hs = TopDownHypothesisSpace(primitives=totalextension,
 
 # Neural network kan je inladen als volgt:
 
-model = keras.models.load_model("../utility/Saved_model", compile=True)
+model = keras.models.load_model("../utility/Saved_model_covered", compile=True)
 print(model.summary())
 
 # Een prediction met de neural network kan je als volgt doen:

@@ -160,6 +160,7 @@ class AbstractSearcher(ABC):
 
             # Get scores for primitives using current candidate and each example
             primitives = self.get_best_primitives(examples, current_cand)
+            print(primitives)
             exps = self.process_expansions(current_cand, examples, exps, primitives, hypothesis_space)
 
             # add into pool
