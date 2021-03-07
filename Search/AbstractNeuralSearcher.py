@@ -4,6 +4,8 @@ from abc import abstractmethod
 import numpy
 from orderedset import OrderedSet
 
+from functools import cmp_to_key
+
 from Search.AbstractSearcher import AbstractSearcher
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.task import Task
@@ -27,6 +29,9 @@ class AbstractNeuralSearcher(AbstractSearcher):
         self._max_body_literals = max_body_literals
         self.amount_chosen_from_nn = amount_chosen_from_nn
         self.model = keras.models.load_model(model_location, compile=True)
+        
+        # TODO param
+        self.filter_amount = 5
 
     def initialise_pool(self):
         self._candidate_pool = OrderedSet()
@@ -53,6 +58,15 @@ class AbstractNeuralSearcher(AbstractSearcher):
             return 0
         else:
             return len(covered_pos)
+        
+    def evaluate_distinct(self, examples: Task, clause: Clause) -> int, int:
+        covered = self._execute_program(examples, clause)
+        pos, neg = examples.get_examples()
+
+        covered_pos = pos.intersection(covered)
+        covered_neg = neg.intersection(covered)
+        
+        return covered_pos, covered_neg
 
     def stop_inner_search(self, eval: typing.Union[int, float], examples: Task, clause: Clause) -> bool:
         if eval > 0:
@@ -115,7 +129,8 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
                 if self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
-                    new_exps.append(current_exp)
+                    new_exp = Triple(current_exp, examples)
+                    new_exps.append(new_exp)
 
                     # TODO miss beter op moment daje hem uit pool neemt (minder berekeningen, stel je overloopt ze
                     #  nie allemaal), idk if possible though
@@ -124,4 +139,31 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])
 
-        return new_exps
+        new_exps = sorted(new_exps, key=cmp_to_key(Triple.comparator))[:self.filter_amount]
+        new_exps_real = []
+        
+        for triple in new_exps
+            new_exps_real.append(triple.exp)
+        
+        return new_exps_real
+    
+    class Triplet:
+        def __init__(self, exp, examples):
+            self.exp=exp
+            self.pos, self.neg=self.evaluate_distinct(examples, exp)
+        
+        def comparator(a, b):
+            # Look at positive coverage
+            if a.pos > b.pos:
+                return 1
+            if a.pos < b.pos:
+                return -1
+            
+            # Look at negative coverage
+            if a.neg < b.neg:
+                return 1
+            if a.neg > b.neg:
+                return -1
+            
+            # Equal
+            return 0
