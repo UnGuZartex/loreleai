@@ -3,6 +3,7 @@ import typing
 from abc import ABC, abstractmethod
 
 import numpy
+from pylo.language.commons import c_functor, c_pred, Structure, List
 
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.task import Task, Knowledge
@@ -25,6 +26,9 @@ class AbstractSearcher(ABC):
         self.current_primitives = numpy.array(primitives)
         self._candidate_pool = []
         self.example_weights = {}
+        s = c_functor("s", 2)
+
+        self._solver.asserta(c_pred("test_task", 1)(Structure(s, [List([]), List([])])))
 
     def _assert_knowledge(self, knowledge: Knowledge):
         """
@@ -165,6 +169,8 @@ class AbstractSearcher(ABC):
             # add into pool
             self.put_into_pool(exps)
             score = self.evaluate(examples, current_cand)
+            print(len(current_cand))
+            print(current_cand)
 
 
         return current_cand
@@ -194,5 +200,6 @@ class AbstractSearcher(ABC):
             # Reset example weights
             self.example_weights = {}
             print(final_program)
+            print(covered)
 
         return final_program

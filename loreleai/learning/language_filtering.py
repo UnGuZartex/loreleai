@@ -1,7 +1,7 @@
 from functools import reduce
 
 from loreleai.language.lp import Body, Atom, Not, Predicate
-from .utilities import are_variables_connected
+from .utilities import are_variables_connected, literal_exist_all_same_variables
 
 """
 It contains the functions used to prune the search space
