@@ -31,7 +31,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         self.model = keras.models.load_model(model_location, compile=True)
         
         # TODO param
-        self.filter_amount = 1
+        self.filter_amount = 2
 
     def initialise_pool(self):
         self._candidate_pool = OrderedSet()
@@ -54,6 +54,8 @@ class AbstractNeuralSearcher(AbstractSearcher):
         covered_pos = pos.intersection(covered)
         covered_neg = neg.intersection(covered)
 
+        print(len(covered_neg))
+        print(len(covered_pos))
         if len(covered_neg) > 0:
             return 0
         else:
