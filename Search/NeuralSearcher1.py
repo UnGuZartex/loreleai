@@ -22,8 +22,8 @@ from utility.datapreprocessor import get_nn_input_data
 
 class NeuralSearcher1(AbstractNeuralSearcher):
     def __init__(self, solver_instance: Prolog, primitives, model_location, max_body_literals=4,
-                 amount_chosen_from_nn=3):
-        super().__init__(solver_instance, primitives, model_location, max_body_literals, amount_chosen_from_nn)
+                 amount_chosen_from_nn=3, filter_amount=2):
+        super().__init__(solver_instance, primitives, model_location, max_body_literals, amount_chosen_from_nn, filter_amount)
 
     def filter_examples(self, examples: Task) -> Task:
         pos, _ = examples.get_examples()

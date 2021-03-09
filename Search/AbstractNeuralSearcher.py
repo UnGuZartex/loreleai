@@ -24,14 +24,12 @@ from utility.datapreprocessor import get_nn_input_data, clause_to_list, find_dif
 
 
 class AbstractNeuralSearcher(AbstractSearcher):
-    def __init__(self, solver_instance: Prolog, primitives, model_location, max_body_literals, amount_chosen_from_nn):
+    def __init__(self, solver_instance: Prolog, primitives, model_location, max_body_literals, amount_chosen_from_nn, filter_amount):
         super().__init__(solver_instance, primitives)
         self._max_body_literals = max_body_literals
         self.amount_chosen_from_nn = amount_chosen_from_nn
+        self.filter_amount = filter_amount
         self.model = keras.models.load_model(model_location, compile=True)
-        
-        # TODO param
-        self.filter_amount = 2
 
     def initialise_pool(self):
         self._candidate_pool = OrderedSet()
