@@ -234,6 +234,7 @@ def are_variables_connected(atoms: Sequence[Atom]):
 
     return res
 
+# TODO change name
 def literal_exist_all_same_variables(atoms: Sequence[Atom]):
     """
     Checks whether the Variables in the clause are not all the same
@@ -245,7 +246,8 @@ def literal_exist_all_same_variables(atoms: Sequence[Atom]):
 
     for atm in atoms:
         vrs = atm.get_variables()
-        if len(vrs) != 1 and len(set(vrs)) == 1:
+        vrs_l = len(vrs)
+        if vrs_l != 1 and len(set(vrs)) < vrs_l:
             return True
 
     return False
