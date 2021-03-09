@@ -121,7 +121,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 current_exp = exps[ind][0]
                 encoded_exp = clause_to_list(current_exp, self.current_primitives.tolist())
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
-                if not prim_index or self.current_primitives[prim_index] in primitives:
+                if self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
                     new_exp = Triplet(current_exp, examples, self)
                     new_exps.append(new_exp)
@@ -133,8 +133,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])
 
-
-        new_exps = sorted(new_exps, key=cmp_to_key(Triplet.comparator))[:self.filter_amount]
+        new_exps = sorted(new_exps, key=cmp_to_key(Triplet.comparator), reverse=True)[:self.filter_amount]
         new_exps_real = []
         
         for triple in new_exps:
@@ -142,7 +141,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         
         return new_exps_real
 
-    def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[int, int]:
+    def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[typing.Set, typing.Set]:
         covered = self._execute_program(examples, clause)
         pos, neg = examples.get_examples()
 
@@ -160,6 +159,21 @@ class Triplet:
         self.neuralsearch = neuralsearch
 
     def comparator(a, b):
+        ###############################################################
+        # posalen = len(a.pos)
+        # posblen = len(b.pos)
+        # negalen = len(a.neg)
+        # negblen = len(b.neg)
+        # if posblen+negblen == 0:
+        #     totalb = 0
+        # else:
+        #     totalb = (posblen/(posblen+negblen))
+        # if posalen+negalen == 0:
+        #     totala = 0
+        # else:
+        #     totala = (posalen/(posalen+negalen))
+        # return totala < totalb
+        ###############################################################
         # Look at positive coverage
         if a.pos > b.pos:
             return 1

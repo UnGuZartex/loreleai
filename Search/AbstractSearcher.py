@@ -26,9 +26,6 @@ class AbstractSearcher(ABC):
         self.current_primitives = numpy.array(primitives)
         self._candidate_pool = []
         self.example_weights = {}
-        s = c_functor("s", 2)
-
-        self._solver.asserta(c_pred("test_task", 1)(Structure(s, [List([]), List([])])))
 
     def _assert_knowledge(self, knowledge: Knowledge):
         """

@@ -51,7 +51,6 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=total_predicates,
                                 head_constructor=c_pred("test_task", 1),
-                                recursive_procedures=True,
                                 # TODO connected clause kan miss problemen hebben da ie geen nieuwe vars wil introducen, kweet eigl nie (check)
                                 expansion_hooks_keep=[lambda x, y: connected_clause(x, y)],
                                 expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
@@ -62,8 +61,8 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     # create Prolog and learner instance
     prolog = SWIProlog()
     learner = NeuralSearcher1(solver_instance=prolog, primitives=filtered_predicates,
-                              model_location="../utility/Saved_model_covered", max_body_literals=120,
-                              amount_chosen_from_nn=6)
+                              model_location="../utility/Saved_model_covered", max_body_literals=15,
+                              amount_chosen_from_nn=3)
 
     program = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
     print(program)
