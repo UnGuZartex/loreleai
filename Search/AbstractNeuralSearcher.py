@@ -119,7 +119,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 current_exp = exps[ind][0]
                 encoded_exp = clause_to_list(current_exp, self.current_primitives.tolist())
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
-                if self.current_primitives[prim_index] in primitives:
+                if not prim_index or self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
                     new_exp = Triplet(current_exp, examples, self)
                     new_exps.append(new_exp)
