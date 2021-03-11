@@ -4,12 +4,14 @@ from math import factorial
 
 import numpy
 from pylo.engines import SWIProlog
-from pylo.language.commons import c_pred, Clause, Procedure, Atom, Structure, List
+from pylo.language.commons import c_pred, Clause, Procedure, Atom, Structure, List, c_functor
 from orderedset import OrderedSet
 
 from filereaders.knowledgereader import createKnowledge
 from filereaders.taskreader import readPositiveOfType
-from loreleai.learning import plain_extension, TopDownHypothesisSpace, has_singleton_vars, has_duplicated_literal
+from loreleai.learning import plain_extension, TopDownHypothesisSpace, has_singleton_vars, has_duplicated_literal, \
+    connected_clause
+from loreleai.learning.language_filtering import has_all_same_vars_in_literal
 
 MAX_STRING_LENGTH = 120
 prolog = SWIProlog()
@@ -26,7 +28,9 @@ def clause_to_list(current_cand: Clause, filtered_predicates):
     body = current_cand.get_body()
     listencoding = [0] * len(filtered_predicates)
     for literal in body.get_literals():
-        listencoding[filtered_predicates.index(literal.get_predicate())] += 1
+        if literal.get_predicate() in filtered_predicates:
+            listencoding[filtered_predicates.index(literal.get_predicate())] += 1
+
     return listencoding
 
 
@@ -162,7 +166,6 @@ def main():
     f1 = open("processeddata_average.csv", "a")
     f2 = open("processeddata_covered.csv", "a")
     prolog.consult("../inputfiles/StringTransformations_BackgroundKnowledge.pl")
-
     amount_of_clauses = 500
     chosen_pred = "t"
     minlength = 0
@@ -181,10 +184,14 @@ def main():
             filtered_predicates.append(predicate)
 
     # create the hypothesis space
-    hs = TopDownHypothesisSpace(primitives=totalextension,
+    hs = TopDownHypothesisSpace(primitives=filtered_predicates,
                                 head_constructor=c_pred("train_task", 1),
+                                # TODO connected clause kan miss problemen hebben da ie geen nieuwe vars wil introducen, kweet eigl nie (check)
+                                expansion_hooks_keep=[lambda x, y: connected_clause(x, y)],
                                 expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
-                                                        lambda x, y: has_duplicated_literal(x, y)])
+                                                        lambda x, y: has_duplicated_literal(x, y),
+                                                        # TODO check op fouten lol :p
+                                                        lambda x, y: has_all_same_vars_in_literal(x, y)])
     clauses_used = 0
     possible_candidates = OrderedSet()
     put_into_pool(possible_candidates, hs.get_current_candidate())
