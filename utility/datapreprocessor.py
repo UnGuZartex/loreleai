@@ -41,14 +41,15 @@ def var_coeff(current_cand: Clause, filtered_predicates):
     connections = [0]*len(filtered_predicates)
     for literal in allliterals:
         all_variables1 = literal.get_variables()
-        index = filtered_predicates.index(literal.get_predicate())
-        for literal2 in allliterals:
-            if literal != literal2:
-                all_variables2 = literal2.get_variables()
-                for variable in all_variables1:
-                    if variable in all_variables2:
-                        connections[index] += 1
-                        break
+        if literal.get_predicate() in filtered_predicates:
+            index = filtered_predicates.index(literal.get_predicate())
+            for literal2 in allliterals:
+                if literal != literal2:
+                    all_variables2 = literal2.get_variables()
+                    for variable in all_variables1:
+                        if variable in all_variables2:
+                            connections[index] += 1
+                            break
     for index in range(len(connections)):
         if totalliterals > 1:
             connections[index] /= (totalliterals-1)
