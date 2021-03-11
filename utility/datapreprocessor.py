@@ -185,7 +185,7 @@ def main():
             filtered_predicates.append(predicate)
 
     # create the hypothesis space
-    hs = TopDownHypothesisSpace(primitives=filtered_predicates,
+    hs = TopDownHypothesisSpace(primitives=totalextension,
                                 head_constructor=c_pred("train_task", 1),
                                 # TODO connected clause kan miss problemen hebben da ie geen nieuwe vars wil introducen, kweet eigl nie (check)
                                 expansion_hooks_keep=[lambda x, y: connected_clause(x, y)],
