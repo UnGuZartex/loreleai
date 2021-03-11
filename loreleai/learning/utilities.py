@@ -237,8 +237,7 @@ def are_variables_connected(atoms: Sequence[Atom]):
 
     return res
 
-# TODO change name
-def literal_exist_all_same_variables(atoms: Sequence[Atom]):
+def literal_exist_g1_same_variables(atoms: Sequence[Atom]):
     """
     Checks whether the Variables in the clause are not all the same
 
