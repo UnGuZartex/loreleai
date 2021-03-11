@@ -4,6 +4,7 @@ from functools import reduce
 from itertools import combinations_with_replacement, combinations
 
 import networkx as nx
+from networkx.classes.function import create_empty_copy
 from orderedset import OrderedSet
 
 from loreleai.language.lp import (
@@ -15,6 +16,7 @@ from loreleai.language.lp import (
     Recursion,
 )
 from loreleai.learning.utilities import FillerPredicate
+from loreleai.learning.language_manipulation import plain_extension
 
 
 class HypothesisSpace(ABC):
@@ -36,6 +38,7 @@ class HypothesisSpace(ABC):
         self._hypothesis_space = None
         self._connected_clauses = connected_clauses
         self._use_recursions = recursive_procedures
+        self._recursive_expansion = lambda x: plain_extension(x, self._head_constructor, connected_clauses=True) if (self._use_recursions and isinstance(self._head_constructor, Predicate)) else None
         self._pointers: typing.Dict[str, Body] = {"main": None}
         self._expansion_hooks_keep = expansion_hooks_keep
         self._expansion_hooks_reject = expansion_hooks_reject
@@ -120,7 +123,9 @@ class TopDownHypothesisSpace(HypothesisSpace):
         recursive_procedures: bool = False,
         repetitions_in_head_variables: int = 2,
         expansion_hooks_keep: typing.Sequence = (),
-        expansion_hooks_reject: typing.Sequence = ()
+        expansion_hooks_reject: typing.Sequence = (),
+        constants=None,
+        initial_clause: typing.Union[Clause,Body] = None
     ):
         super().__init__(
             primitives,
@@ -135,12 +140,14 @@ class TopDownHypothesisSpace(HypothesisSpace):
         self._repetition_vars_head = repetitions_in_head_variables
         self._invented_predicate_count = 0
         self._recursive_pointers_count = 0
+        self._constants = constants
         self._recursive_pointer_prefix = "rec"
-        self.initialise()
+        self.initialise(initial_clause)
 
-    def initialise(self) -> None:
+    def initialise(self, initial_clause: typing.Union[Clause,Body]) -> None:
         """
-        Initialises the search space
+        Initialises the search space. It is possible to provide an initial
+        clause to initialize the hypothesis space with (instead of :-). 
         """
         if isinstance(self._head_constructor, (Predicate, FillerPredicate)):
             if isinstance(self._head_constructor, Predicate):
@@ -156,8 +163,14 @@ class TopDownHypothesisSpace(HypothesisSpace):
             else:
                 possible_heads = self._head_constructor.all_possible_atoms()
 
-            # create empty clause
-            clause = Body()
+            # create empty clause or use initial clause
+            if initial_clause:
+                clause = initial_clause if isinstance(initial_clause,Body) else initial_clause.get_body() 
+            else:
+                clause = Body()
+            if len(clause.get_literals()) > 0 and len(clause.get_variables()) < self._head_constructor.get_arity():
+                raise AssertionError("Cannot provide an initial clause with fewer distinct variables than the head predicate!")
+
             init_head_dict = {"ignored": False, "blocked": False, "visited": False}
             self._hypothesis_space.add_node(clause)
             self._hypothesis_space.nodes[clause]["heads"] = dict([(x, init_head_dict.copy()) for x in possible_heads])
@@ -212,7 +225,7 @@ class TopDownHypothesisSpace(HypothesisSpace):
             - a predicate constructed by FillerPredicate is in the body
         """
         if isinstance(self._head_constructor, Predicate):
-            return True if self._head_constructor is body.get_predicates() else False
+            return True if self._head_constructor in body.get_predicates() else False
         else:
             return (
                 True
@@ -273,6 +286,7 @@ class TopDownHypothesisSpace(HypothesisSpace):
 
             return True
         else:
+            # print("No possible heads")
             return False
 
     def _insert_edge(self, parent: Body, child: Body,) -> None:
@@ -298,6 +312,8 @@ class TopDownHypothesisSpace(HypothesisSpace):
         else:
             head, body = node.get_head(), node.get_body()
             if head in self._hypothesis_space.nodes[body]["heads"]:
+                if "cache" not in self._hypothesis_space.nodes[body]["heads"][head]:
+                    self._hypothesis_space.nodes[body]["heads"][head]["cache"] = {}
                 self._hypothesis_space.nodes[body]["heads"][head]["cache"][key] = val
 
     def retrieve_from_cache(self, node: typing.Union[Clause, Procedure], key):
@@ -313,7 +329,9 @@ class TopDownHypothesisSpace(HypothesisSpace):
             raise NotImplementedError("no support for caching with procedures currently")
         else:
             head, body = node.get_head(), node.get_body()
-            if head in self._hypothesis_space.nodes[body]["heads"]:
+            if head in self._hypothesis_space.nodes[body]["heads"]  \
+                and "cache" in self._hypothesis_space.nodes[body]["heads"][head] \
+                    and key in self._hypothesis_space.nodes[body]["heads"][head]["cache"]:
                 return self._hypothesis_space.nodes[body]["heads"][head]["cache"][key]
             else:
                 return None
@@ -332,7 +350,6 @@ class TopDownHypothesisSpace(HypothesisSpace):
             head, body = node.get_head(), node.get_body()
             if head in self._hypothesis_space.nodes[body]["heads"]:
                 del self._hypothesis_space.nodes[body]["heads"][head]["cache"][key]
-
 
     def register_pointer(self, name: str, init_value: Body = None):
         """
@@ -357,17 +374,22 @@ class TopDownHypothesisSpace(HypothesisSpace):
         """
         expansions = OrderedSet()
 
+        # Add the result of applying a primitive
         for item in range(len(self._primitives)):
             exp = self._primitives[item](node)
             expansions = expansions.union(exp)
 
         # if recursions should be enumerated when FillerPredicate is used to construct the heads
-        if isinstance(self._head_constructor, FillerPredicate) and self._use_recursions:
-            recursive_cases = self._head_constructor.add_to_body(node)
+        if self._use_recursions:
+            if isinstance(self._head_constructor, FillerPredicate):
+                recursive_cases = self._head_constructor.add_to_body(node)
+            elif isinstance(self._head_constructor, Predicate):
+                recursive_cases = self._recursive_expansion(node)
+            else:
+                raise Exception(f"Unknown head constructor ({type(self._head_constructor)})")
+
             for r_ind in range(len(recursive_cases)):
                 expansions = expansions.union([node + recursive_cases[r_ind]])
-
-        expansions = list(expansions)
 
         # add expansions to the hypothesis space
         # if self._insert_node returns False, forget the expansion
@@ -376,6 +398,8 @@ class TopDownHypothesisSpace(HypothesisSpace):
             r = self._insert_node(expansions[exp_ind])
             if r:
                 expansions_to_consider.append(expansions[exp_ind])
+            # else:
+            #     print("Rejected: {}".format(expansions[exp_ind]))
 
         expansions = expansions_to_consider
 
@@ -413,7 +437,7 @@ class TopDownHypothesisSpace(HypothesisSpace):
 
         if (
             "partner" in self._hypothesis_space.nodes[body]
-            or "blocked" in self._hypothesis_space.nodes[body]
+            or self._hypothesis_space.nodes[body].get("blocked", False)
         ):
             # do not expand recursions or blocked nodes
             return []
@@ -428,7 +452,7 @@ class TopDownHypothesisSpace(HypothesisSpace):
 
         return reduce(
             lambda x, y: x + y,
-            [self.retrieve_clauses_from_body(x) for x in expansions],
+            [self.retrieve_clauses_from_body(x) if "partner" not in self._hypothesis_space.nodes[x] else self._get_recursions(x) for x in expansions],
             [],
         )
 
@@ -672,3 +696,5 @@ class TopDownHypothesisSpace(HypothesisSpace):
             body = self._extract_body(node)
             return reduce(lambda x, y: x + y, [self.retrieve_clauses_from_body(x) for x in self._hypothesis_space.successors(body)], [])
 
+    def remove_all_edges(self):
+        self._hypothesis_space = create_empty_copy(self._hypothesis_space,with_data=True)
