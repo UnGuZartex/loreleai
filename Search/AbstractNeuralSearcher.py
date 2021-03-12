@@ -112,14 +112,14 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         # check if every clause has solutions
         exps = [(cl, self._solver.has_solution(*cl.get_body().get_literals())) for cl in exps]
-        # TODO FOR SOME REASON VALLEN ER HIER WEG?
         new_exps = []
+
         for ind in range(len(exps)):
             if exps[ind][1]:
                 current_exp = exps[ind][0]
                 encoded_exp = clause_to_list(current_exp, self.current_primitives.tolist())
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
-                if not prim_index or self.current_primitives[prim_index] in primitives:
+                if (not prim_index and self.rules != 0) or self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
                     new_exp = Triplet(current_exp, examples, self)
                     new_exps.append(new_exp)

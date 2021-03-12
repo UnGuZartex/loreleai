@@ -24,8 +24,9 @@ class AbstractSearcher(ABC):
     def __init__(self, solver_instance: Prolog, primitives):
         self._solver = solver_instance
         self.current_primitives = numpy.array(primitives)
-        self._candidate_pool = []
         self.example_weights = {}
+        self.rules = 0
+        self._candidate_pool = []
 
     def _assert_knowledge(self, knowledge: Knowledge):
         """
@@ -169,7 +170,6 @@ class AbstractSearcher(ABC):
             print(len(current_cand))
             print(current_cand)
 
-
         return current_cand
 
     def learn(self, examples: Task, background_location: string, hypothesis_space: TopDownHypothesisSpace):
@@ -186,12 +186,12 @@ class AbstractSearcher(ABC):
             # learn a single clause
             cl = self._learn_one_clause(examples_to_use, hypothesis_space)
             final_program.append(cl)
+            self.rules += 1
 
             # update covered positive examples
             covered = self._execute_program(examples, cl)
             pos, neg = examples_to_use.get_examples()
             pos = pos.difference(covered)
-
 
             examples_to_use = Task(pos, neg)
             # Reset example weights

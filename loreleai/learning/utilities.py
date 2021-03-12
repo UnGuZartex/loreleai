@@ -11,11 +11,11 @@ from typing import Sequence, Dict, Tuple
 
 class FillerPredicate:
     def __init__(
-        self,
-        prefix_name: str,
-        arity: int = None,
-        max_arity: int = None,
-        min_arity: int = None,
+            self,
+            prefix_name: str,
+            arity: int = None,
+            max_arity: int = None,
+            min_arity: int = None,
     ):
         assert bool(max_arity) == bool(min_arity) and min_arity <= max_arity
         assert bool(arity) != bool(max_arity)
@@ -26,7 +26,7 @@ class FillerPredicate:
         self._instance_counter = 0
 
     def new(
-        self, arity: int = None, argument_types: Sequence[Type] = None
+            self, arity: int = None, argument_types: Sequence[Type] = None
     ) -> Predicate:
         """
         Creates a new predicate from the template
@@ -35,15 +35,15 @@ class FillerPredicate:
         if the
         """
         assert (
-            arity is not None or self._arity is not None or argument_types is not None
+                arity is not None or self._arity is not None or argument_types is not None
         )
         self._instance_counter += 1
 
         if argument_types is not None:
             assert (
-                len(argument_types) == self._arity
-                or len(argument_types) >= self._min_arity
-                or len(argument_types) <= self._max_arity
+                    len(argument_types) == self._arity
+                    or len(argument_types) >= self._min_arity
+                    or len(argument_types) <= self._max_arity
             )
             return c_pred(
                 f"{self._prefix_name}_{self._instance_counter}",
@@ -56,11 +56,11 @@ class FillerPredicate:
             return c_pred(f"{self._prefix_name}_{self._instance_counter}", self._arity)
 
     def _from_body_fixed_arity(
-        self,
-        body: Body,
-        arity: int = None,
-        arg_types: Sequence[Type] = None,
-        use_as_head_predicate: Predicate = None,
+            self,
+            body: Body,
+            arity: int = None,
+            arg_types: Sequence[Type] = None,
+            use_as_head_predicate: Predicate = None,
     ) -> Sequence[Atom]:
         """
         Creates a head atom given the body of the clause
@@ -107,11 +107,11 @@ class FillerPredicate:
         return heads
 
     def new_from_body(
-        self,
-        body: Body,
-        arity: int = None,
-        argument_types: Sequence[Type] = None,
-        use_as_head_predicate: Predicate = None,
+            self,
+            body: Body,
+            arity: int = None,
+            argument_types: Sequence[Type] = None,
+            use_as_head_predicate: Predicate = None,
     ) -> Sequence[Atom]:
         """
         Constructs all possible head atoms given a body of a clause
@@ -121,7 +121,9 @@ class FillerPredicate:
         Then, it check if the arity argument is provided
         """
         if use_as_head_predicate:
-            return self._from_body_fixed_arity(body, arity=use_as_head_predicate.get_arity(), arg_types=use_as_head_predicate.get_arg_types(), use_as_head_predicate=use_as_head_predicate)
+            return self._from_body_fixed_arity(body, arity=use_as_head_predicate.get_arity(),
+                                               arg_types=use_as_head_predicate.get_arg_types(),
+                                               use_as_head_predicate=use_as_head_predicate)
         elif self._arity is not None:
             # a specific arity is provided
             return self._from_body_fixed_arity(body, self._arity, argument_types)
@@ -142,8 +144,8 @@ class FillerPredicate:
         Creates all possible argument configurations for the atom
         """
         head_variables = [c_var(chr(x)) for x in range(ord("A"), ord("Z"))][
-            : self._arity
-        ]
+                         : self._arity
+                         ]
         if self._arity is not None:
             return [
                 Atom(self.new(), list(x))
@@ -237,7 +239,8 @@ def are_variables_connected(atoms: Sequence[Atom]):
 
     return res
 
-def literal_exist_g1_same_variables(atoms: Sequence[Atom]):
+
+def literal_exist_g1_same_variables(atoms: Sequence[Atom]) -> bool:
     """
     Checks whether the Variables in the clause are not all the same
 
@@ -253,6 +256,21 @@ def literal_exist_g1_same_variables(atoms: Sequence[Atom]):
             return True
 
     return False
+
+
+def _get_body_predicates_list(body: Body):
+    return [x.get_predicate() for x in body.get_literals()]
+
+
+def get_recursive_calls_amount(head: Atom, body: Body) -> int:
+
+    rec_count = 0
+    for predicate in _get_body_predicates_list(body):
+        if head.get_predicate() == predicate:
+            rec_count += 1
+
+    return rec_count
+
 
 # def compute_bottom_clause(theory: Sequence[Clause], c: Clause) -> Clause:
 #     """
@@ -431,7 +449,7 @@ def skolemize(clause: Clause) -> Clause:
 #                     d[arg] = d[arg] + 1
 #
 #     return [const for const in d.keys() if d[const] >= min_frequency]
-    
+
 def _flatten(l) -> Sequence:
     """
     [[1],[2],[3]] -> [1,2,3]
