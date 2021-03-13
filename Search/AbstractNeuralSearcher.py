@@ -43,7 +43,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
             self._candidate_pool.put(candidate)
 
     def get_from_pool(self) -> Clause:
-        return self._candidate_pool.get().exp
+        return self._candidate_pool.get()[-1]
 
     def evaluate(self, examples: Task, clause: Clause) -> typing.Union[int, float]:
         covered = self._execute_program(examples, clause)
@@ -140,6 +140,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         for triplet in new_exps:
             new_exps_real.append(triplet.get_tuple())
 
+        print(new_exps_real)
         return new_exps_real
 
     def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[int, int]:

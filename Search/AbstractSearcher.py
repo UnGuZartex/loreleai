@@ -148,7 +148,8 @@ class AbstractSearcher(ABC):
         self.initialise_pool()
 
         # put initial candidates into the pool
-        self.put_into_pool([Triplet(hypothesis_space.get_current_candidate())])
+        print(hypothesis_space.get_current_candidate())
+        self.put_into_pool([Triplet(hypothesis_space.get_current_candidate()).get_tuple()])
         current_cand = None
         first = True
         score = -100
@@ -160,6 +161,8 @@ class AbstractSearcher(ABC):
 
             if first:
                 # TODO idk wa hier fout loopt, kzou denken iets met de get from pool die ik aangepast heb
+                print("test")
+                print(current_cand)
                 self.example_weights[current_cand] = self.get_initial_weights(examples)
                 first = False
 
