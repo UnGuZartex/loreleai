@@ -1,6 +1,7 @@
 import string
 import typing
 from abc import ABC, abstractmethod
+from queue import PriorityQueue
 
 import numpy
 
@@ -24,7 +25,7 @@ class AbstractSearcher(ABC):
         self.current_primitives = numpy.array(primitives)
         self.example_weights = {}
         self.rules = 0
-        self._candidate_pool = []
+        self._candidate_pool = PriorityQueue()
 
     def _assert_knowledge(self, knowledge: Knowledge):
         """
@@ -148,21 +149,17 @@ class AbstractSearcher(ABC):
         self.initialise_pool()
 
         # put initial candidates into the pool
-        print(hypothesis_space.get_current_candidate())
-        self.put_into_pool([Triplet(hypothesis_space.get_current_candidate()).get_tuple()])
+        self.put_into_pool([Triplet(hypothesis_space.get_current_candidate()[0]).get_tuple()])
         current_cand = None
         first = True
         score = -100
 
         while current_cand is None or (
-                len(self._candidate_pool) > 0 and not self.stop_inner_search(score, examples, current_cand)):
+                self._candidate_pool.qsize() > 0 and not self.stop_inner_search(score, examples, current_cand)):
             # get first candidate from the pool
             current_cand = self.get_from_pool()
 
             if first:
-                # TODO idk wa hier fout loopt, kzou denken iets met de get from pool die ik aangepast heb
-                print("test")
-                print(current_cand)
                 self.example_weights[current_cand] = self.get_initial_weights(examples)
                 first = False
 

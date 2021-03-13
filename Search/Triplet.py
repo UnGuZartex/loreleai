@@ -15,7 +15,7 @@ class Triplet:
         return -self.neg
 
     def get_tuple(self):
-        created_tuple = (-self.func1(), -self.func2(), self.exp)
+        created_tuple = (-self.func1(), -self.func2(), len(self.exp), str(self.exp), self.exp)
         return created_tuple
 
     def comparator(a, b):
