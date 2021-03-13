@@ -3,20 +3,18 @@ import typing
 from abc import ABC, abstractmethod
 
 import numpy
-from pylo.language.commons import c_functor, c_pred, Structure, List
 
-from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
-from loreleai.learning.task import Task, Knowledge
-from loreleai.reasoning.lp.prolog import Prolog
-
+from Search.Triplet import Triplet
 from loreleai.language.lp import (
-    Predicate,
     Clause,
     Procedure,
     Atom,
     Body,
     Recursion,
 )
+from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
+from loreleai.learning.task import Task, Knowledge
+from loreleai.reasoning.lp.prolog import Prolog
 
 
 class AbstractSearcher(ABC):
@@ -82,7 +80,7 @@ class AbstractSearcher(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def put_into_pool(self, candidates: typing.Union[Clause, Procedure, typing.Sequence]) -> None:
+    def put_into_pool(self, candidates) -> None:
         """
         Inserts a clause/a set of clauses into the pool
         """
@@ -98,6 +96,15 @@ class AbstractSearcher(ABC):
         raise NotImplementedError()
 
     @abstractmethod
+    def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[int, int]:
+        """
+        Evaluates a clause of a task
+
+        Returns the positive and negative coverage
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
     def stop_inner_search(self, eval: typing.Union[int, float], examples: Task, clause: Clause) -> bool:
         """
         Returns true if the search for a single clause should be stopped
@@ -106,8 +113,7 @@ class AbstractSearcher(ABC):
 
     @abstractmethod
     def process_expansions(self, current_cand: typing.Union[Clause, Procedure], examples: Task,
-                           exps: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace) \
-            -> typing.Sequence[Clause]:
+                           exps: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace):
         """
         Processes the expansions of a clause
         It can be used to eliminate useless expansions (e.g., the one that have no solution, ...)
@@ -142,7 +148,7 @@ class AbstractSearcher(ABC):
         self.initialise_pool()
 
         # put initial candidates into the pool
-        self.put_into_pool(hypothesis_space.get_current_candidate())
+        self.put_into_pool([Triplet(hypothesis_space.get_current_candidate())])
         current_cand = None
         first = True
         score = -100
@@ -153,6 +159,7 @@ class AbstractSearcher(ABC):
             current_cand = self.get_from_pool()
 
             if first:
+                # TODO idk wa hier fout loopt, kzou denken iets met de get from pool die ik aangepast heb
                 self.example_weights[current_cand] = self.get_initial_weights(examples)
                 first = False
 
