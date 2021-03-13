@@ -11,7 +11,6 @@ from filereaders.knowledgereader import createKnowledge
 from filereaders.taskreader import readPositiveOfType
 from loreleai.learning import plain_extension, TopDownHypothesisSpace, has_singleton_vars, has_duplicated_literal, \
     connected_clause
-from loreleai.learning.language_filtering import has_all_same_vars_in_literal
 
 MAX_STRING_LENGTH = 120
 prolog = SWIProlog()
