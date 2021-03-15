@@ -9,10 +9,15 @@ class Triplet:
 
     # Verander deze funcs naar 1 func indien we een andere measure gebruiken :)
     def func1(self):
-        return self.pos
+        if (self.pos + self.neg) == 0:
+            return -200
+        else:
+            return self.pos / (self.pos+self.neg)
+        # return self.pos
 
     def func2(self):
-        return -self.neg
+        return self.pos
+        #return -self.neg
 
     def get_tuple(self):
         created_tuple = (-self.func1(), -self.func2(), len(self.exp), str(self.exp), self.exp)

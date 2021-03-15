@@ -85,11 +85,11 @@ class AbstractNeuralSearcher(AbstractSearcher):
         scores = [0] * 22
 
         # Filter examples (e.g. only use positive/negative examples)
-        examples = self.filter_examples(examples)
-
+        # examples = self.filter_examples(examples)
+        pos,neg = examples.get_examples()
         # TODO nudat ik deze warning bekijk, klopt dit?
         # Calculate nn output for each example
-        for example in examples:
+        for example in pos:
             # Update output
             nn_output = self.model.predict(get_nn_input_data(current_cand, example, self.current_primitives.tolist()))[
                 0]
@@ -97,6 +97,15 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
             # Update score vector
             scores = self.update_score(current_cand, example, scores, nn_output)
+
+        for example in neg:
+            # Update output
+            nn_output = self.model.predict(get_nn_input_data(current_cand, example, self.current_primitives.tolist()))[
+                0]
+            nn_output = self.process_output(nn_output)
+
+            # Update score vector
+            scores = self.update_score(current_cand, example, scores, -0.2*nn_output)
 
         # Return x best primitives
         indices = numpy.argpartition(scores, -self.amount_chosen_from_nn)[-self.amount_chosen_from_nn:]
