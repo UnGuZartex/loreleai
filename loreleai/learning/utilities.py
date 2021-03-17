@@ -258,12 +258,26 @@ def literal_exist_g1_same_variables(atoms: Sequence[Atom]) -> bool:
     return False
 
 
+def duplicated_var_set_exists(atoms: Sequence[Atom]) -> bool:
+    var_sets = []
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+        if vrs_l != 1:
+            var_sets.append(frozenset(vrs))
+
+    if len(var_sets) != len(set(var_sets)):
+        return True
+
+    return False
+
+
 def _get_body_predicates_list(body: Body):
     return [x.get_predicate() for x in body.get_literals()]
 
 
 def get_recursive_calls_amount(head: Atom, body: Body) -> int:
-
     rec_count = 0
     for predicate in _get_body_predicates_list(body):
         if head.get_predicate() == predicate:
