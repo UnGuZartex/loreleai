@@ -9,7 +9,7 @@ from filereaders.taskreader import readPositiveOfType
 from loreleai.language.lp import c_pred, Clause, Procedure, Atom
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.language_filtering import has_singleton_vars, has_duplicated_literal, connected_clause, \
-    has_g1_same_vars_in_literal, has_double_recursion, has_duplicated_var_set
+    has_g1_same_vars_in_literal, has_double_recursion, has_duplicated_var_set, head_first
 from loreleai.learning.language_manipulation import plain_extension
 from loreleai.learning.task import Task, Knowledge
 from loreleai.reasoning.lp.prolog import SWIProlog, Prolog
@@ -52,7 +52,8 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     hs = TopDownHypothesisSpace(primitives=total_predicates,
                                 head_constructor=c_pred("test_task", 1),
                                 # TODO add new hooks
-                                expansion_hooks_keep=[lambda x, y: connected_clause(x, y)],
+                                expansion_hooks_keep=[lambda x, y: connected_clause(x, y),
+                                                      lambda x, y: head_first(x, y)],
                                 expansion_hooks_reject=[lambda x, y: has_singleton_vars(x, y),
                                                         lambda x, y: has_duplicated_literal(x, y),
                                                         lambda x, y: has_g1_same_vars_in_literal(x, y),

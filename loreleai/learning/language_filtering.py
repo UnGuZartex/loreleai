@@ -114,3 +114,7 @@ def has_duplicated_var_set(head: Atom, body: Body) -> bool:
     Returns True if there exists a variable set that is also used in other literals in the body
     """
     return duplicated_var_set_exists([x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()])
+
+
+def head_first(head: Atom, body: Body) -> bool:
+    return len(set(body.get_literals()[0].get_variables()).intersection(set(head.get_variables()))) != 0
