@@ -143,6 +143,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])
 
+        print(new_exps)
         new_exps = sorted(new_exps, key=cmp_to_key(Triplet.comparator), reverse=True)[:self.filter_amount]
         new_exps_real = []
 

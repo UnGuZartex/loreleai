@@ -273,6 +273,21 @@ def duplicated_var_set_exists(atoms: Sequence[Atom]) -> bool:
     return False
 
 
+def only_1_pred_exists_for_1_var(atoms: Sequence[Atom]) -> bool:
+    vars = []
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+        if vrs_l == 1:
+            vars.append(vrs[0])
+
+    if len(vars) == len(set(vars)):
+        return True
+
+    return False
+
+
 def _get_body_predicates_list(body: Body):
     return [x.get_predicate() for x in body.get_literals()]
 

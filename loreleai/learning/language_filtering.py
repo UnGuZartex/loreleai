@@ -2,7 +2,7 @@ from functools import reduce
 
 from loreleai.language.lp import Body, Atom, Not, Predicate
 from .utilities import are_variables_connected, literal_exist_g1_same_variables, get_recursive_calls_amount, \
-    duplicated_var_set_exists
+    duplicated_var_set_exists, only_1_pred_exists_for_1_var
 
 """
 It contains the functions used to prune the search space
@@ -118,3 +118,8 @@ def has_duplicated_var_set(head: Atom, body: Body) -> bool:
 
 def head_first(head: Atom, body: Body) -> bool:
     return len(set(body.get_literals()[0].get_variables()).intersection(set(head.get_variables()))) != 0
+
+
+def only_1_pred_for_1_var(head: Atom, body: Body) -> bool:
+    return only_1_pred_exists_for_1_var([x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()])
+
