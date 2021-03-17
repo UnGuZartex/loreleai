@@ -2,7 +2,7 @@ from functools import reduce
 
 from loreleai.language.lp import Body, Atom, Not, Predicate
 from .utilities import are_variables_connected, literal_exist_g1_same_variables, get_recursive_calls_amount, \
-    duplicated_var_set_exists, only_1_pred_exists_for_1_var
+    duplicated_var_set_exists, only_1_pred_exists_for_1_var, new_input_exists, not_previous_output_as_input_exists
 
 """
 It contains the functions used to prune the search space
@@ -116,10 +116,24 @@ def has_duplicated_var_set(head: Atom, body: Body) -> bool:
     return duplicated_var_set_exists([x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()])
 
 
-def head_first(head: Atom, body: Body) -> bool:
-    return len(set(body.get_literals()[0].get_variables()).intersection(set(head.get_variables()))) != 0
-
-
 def only_1_pred_for_1_var(head: Atom, body: Body) -> bool:
     return only_1_pred_exists_for_1_var([x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()])
+
+
+def has_new_input(head: Atom, body: Body) -> bool:
+    atom_list = [x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()]
+    atom_list.insert(0, head)
+
+    return new_input_exists(atom_list)
+
+
+def has_not_previous_output_as_input(head: Atom, body: Body) -> bool:
+    atom_list = [x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()]
+    atom_list.insert(0, head)
+
+    return not_previous_output_as_input_exists(atom_list)
+
+
+def head_first(head: Atom, body: Body) -> bool:
+    return len(set(body.get_literals()[0].get_variables()).intersection(set(head.get_variables()))) != 0
 

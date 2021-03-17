@@ -9,7 +9,8 @@ from filereaders.taskreader import readPositiveOfType
 from loreleai.language.lp import c_pred, Clause, Procedure, Atom
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.language_filtering import has_singleton_vars, has_duplicated_literal, connected_clause, \
-    has_g1_same_vars_in_literal, has_double_recursion, has_duplicated_var_set, head_first, only_1_pred_for_1_var
+    has_g1_same_vars_in_literal, has_double_recursion, has_duplicated_var_set, head_first, only_1_pred_for_1_var, \
+    has_new_input, has_not_previous_output_as_input
 from loreleai.learning.language_manipulation import plain_extension
 from loreleai.learning.task import Task, Knowledge
 from loreleai.reasoning.lp.prolog import SWIProlog, Prolog
@@ -56,6 +57,9 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
                                                       lambda x, y: only_1_pred_for_1_var(x, y),
                                                       lambda x, y: head_first(x, y)],
                                 expansion_hooks_reject=[#lambda x, y: has_singleton_vars(x, y),
+                                                        # Singleton-vars constraint is reduced to this constraint
+                                                        lambda x, y: has_not_previous_output_as_input(x, y), # Strict
+                                                        # lambda x, y: has_new_input(x, y), # Not as strict
                                                         lambda x, y: has_duplicated_literal(x, y),
                                                         lambda x, y: has_g1_same_vars_in_literal(x, y),
                                                         lambda x, y: has_duplicated_var_set(x, y),

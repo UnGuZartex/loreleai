@@ -288,6 +288,43 @@ def only_1_pred_exists_for_1_var(atoms: Sequence[Atom]) -> bool:
     return False
 
 
+def new_input_exists(atoms: Sequence[Atom]) -> bool:
+    var_set = set()
+    first = True
+
+    for atm in atoms:
+        var = atm.get_variables()[0]
+
+        if first is False and var not in var_set:
+            return True
+
+        var_set.add(var)
+        first = False
+
+    return False
+
+
+def not_previous_output_as_input_exists(atoms: Sequence[Atom]) -> bool:
+    last_output = None
+    first = True
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+
+        if first is True:
+            last_output = vrs[0]
+            first = False
+        else:
+            if last_output != vrs[0]:
+                return True
+
+            if vrs_l > 1:
+                last_output = vrs[1]
+
+    return False
+
+
 def _get_body_predicates_list(body: Body):
     return [x.get_predicate() for x in body.get_literals()]
 
