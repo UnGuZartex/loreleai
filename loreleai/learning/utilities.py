@@ -329,7 +329,7 @@ def not_previous_output_as_input_exists(atoms: Sequence[Atom]) -> bool:
             first = False
         else:
             if vrs_l == 1:
-                if last_output != vrs[0] or last_special_output != vrs[0]:
+                if last_output != vrs[0] and last_special_output != vrs[0]:
                     return True
             else:
                 if last_output != vrs[0]:
