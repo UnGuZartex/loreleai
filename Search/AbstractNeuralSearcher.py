@@ -1,5 +1,6 @@
 import typing
 from abc import abstractmethod
+from queue import PriorityQueue
 
 import numpy
 from orderedset import OrderedSet
@@ -7,6 +8,7 @@ from orderedset import OrderedSet
 from functools import cmp_to_key
 
 from Search.AbstractSearcher import AbstractSearcher
+from Search.Triplet import Triplet
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.task import Task
 from loreleai.reasoning.lp.prolog import Prolog
@@ -24,7 +26,8 @@ from utility.datapreprocessor import get_nn_input_data, clause_to_list, find_dif
 
 
 class AbstractNeuralSearcher(AbstractSearcher):
-    def __init__(self, solver_instance: Prolog, primitives, model_location, max_body_literals, amount_chosen_from_nn, filter_amount):
+    def __init__(self, solver_instance: Prolog, primitives, model_location, max_body_literals, amount_chosen_from_nn,
+                 filter_amount):
         super().__init__(solver_instance, primitives)
         self._max_body_literals = max_body_literals
         self.amount_chosen_from_nn = amount_chosen_from_nn
@@ -32,17 +35,15 @@ class AbstractNeuralSearcher(AbstractSearcher):
         self.model = keras.models.load_model(model_location, compile=True)
 
     def initialise_pool(self):
-        self._candidate_pool = OrderedSet()
+        self._candidate_pool = PriorityQueue()
 
-    def put_into_pool(self, candidates: typing.Union[Clause, Procedure, typing.Sequence]) -> None:
-        # TODO: Put them accordingly in the pool after processing the expansions (anders miss dan breedte eerst?)
-        if isinstance(candidates, Clause):
-            self._candidate_pool.add(candidates)
-        else:
-            self._candidate_pool |= candidates
+    def put_into_pool(self, candidates) -> None:
+
+        for candidate in candidates:
+            self._candidate_pool.put(candidate)
 
     def get_from_pool(self) -> Clause:
-        return self._candidate_pool.pop(0)
+        return self._candidate_pool.get()[-1]
 
     def evaluate(self, examples: Task, clause: Clause) -> typing.Union[int, float]:
         covered = self._execute_program(examples, clause)
@@ -58,7 +59,6 @@ class AbstractNeuralSearcher(AbstractSearcher):
             return 0
         else:
             return len(covered_pos)
-
 
     def stop_inner_search(self, eval: typing.Union[int, float], examples: Task, clause: Clause) -> bool:
         if eval > 0:
@@ -82,19 +82,30 @@ class AbstractNeuralSearcher(AbstractSearcher):
     def get_best_primitives(
             self, examples: Task, current_cand: typing.Union[Clause, Recursion, Body]
     ) -> typing.Sequence[typing.Union[Clause, Body, Procedure]]:
-        scores = [0]*22
+        scores = [0] * 22
 
         # Filter examples (e.g. only use positive/negative examples)
-        examples = self.filter_examples(examples)
-
+        # examples = self.filter_examples(examples)
+        pos,neg = examples.get_examples()
+        # TODO nudat ik deze warning bekijk, klopt dit?
         # Calculate nn output for each example
-        for example in examples:
+        for example in pos:
             # Update output
-            nn_output = self.model.predict(get_nn_input_data(current_cand, example, self.current_primitives.tolist()))[0]
+            nn_output = self.model.predict(get_nn_input_data(current_cand, example, self.current_primitives.tolist()))[
+                0]
             nn_output = self.process_output(nn_output)
 
             # Update score vector
             scores = self.update_score(current_cand, example, scores, nn_output)
+
+        for example in neg:
+            # Update output
+            nn_output = self.model.predict(get_nn_input_data(current_cand, example, self.current_primitives.tolist()))[
+                0]
+            nn_output = self.process_output(nn_output)
+
+            # Update score vector
+            scores = self.update_score(current_cand, example, scores, -0.2*nn_output)
 
         # Return x best primitives
         indices = numpy.argpartition(scores, -self.amount_chosen_from_nn)[-self.amount_chosen_from_nn:]
@@ -103,7 +114,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         return self.current_primitives[indices]
 
     def process_expansions(self, current_cand: typing.Union[Clause, Procedure], examples: Task,
-                           exps: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
+                           exps: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace):
         # Encode current candidate to list
         encoded_current_cand = clause_to_list(current_cand, self.current_primitives.tolist())
 
@@ -121,7 +132,8 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 prim_index = find_difference(encoded_current_cand, encoded_exp)
                 if (not prim_index and self.rules != 0) or self.current_primitives[prim_index] in primitives:
                     # keep it if it has solutions and if it has an allowed primitive
-                    new_exp = Triplet(current_exp, examples, self)
+                    pos, neg = self.evaluate_distinct(examples, current_exp)
+                    new_exp = Triplet(current_exp, pos, neg)
                     new_exps.append(new_exp)
 
                     # TODO miss beter op moment daje hem uit pool neemt (minder berekeningen, stel je overloopt ze
@@ -133,57 +145,18 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         new_exps = sorted(new_exps, key=cmp_to_key(Triplet.comparator), reverse=True)[:self.filter_amount]
         new_exps_real = []
-        
-        for triple in new_exps:
-            new_exps_real.append(triple.exp)
-        
+
+        for triplet in new_exps:
+            new_exps_real.append(triplet.get_tuple())
+
+        print(new_exps_real)
         return new_exps_real
 
-    def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[typing.Set, typing.Set]:
+    def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[int, int]:
         covered = self._execute_program(examples, clause)
         pos, neg = examples.get_examples()
 
         covered_pos = pos.intersection(covered)
         covered_neg = neg.intersection(covered)
 
-        return covered_pos, covered_neg
-    
-class Triplet:
-
-
-    def __init__(self, exp, examples, neuralsearch: AbstractNeuralSearcher):
-        self.exp=exp
-        self.pos, self.neg=neuralsearch.evaluate_distinct(examples, exp)
-        self.neuralsearch = neuralsearch
-
-    def comparator(a, b):
-        ###############################################################
-        # posalen = len(a.pos)
-        # posblen = len(b.pos)
-        # negalen = len(a.neg)
-        # negblen = len(b.neg)
-        # if posblen+negblen == 0:
-        #     totalb = 0
-        # else:
-        #     totalb = (posblen/(posblen+negblen))
-        # if posalen+negalen == 0:
-        #     totala = 0
-        # else:
-        #     totala = (posalen/(posalen+negalen))
-        # return totala < totalb
-        ###############################################################
-        # Look at positive coverage
-        if a.pos > b.pos:
-            return 1
-        if a.pos < b.pos:
-            return -1
-
-        # Look at negative coverage
-        if a.neg < b.neg:
-            return 1
-        if a.neg > b.neg:
-            return -1
-
-        # Equal
-        return 0
-
+        return len(covered_pos), len(covered_neg)
