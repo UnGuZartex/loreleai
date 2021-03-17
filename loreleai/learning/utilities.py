@@ -288,6 +288,25 @@ def only_1_pred_exists_for_1_var(atoms: Sequence[Atom]) -> bool:
     return False
 
 
+def unexplained_last_var_exists(atoms: Sequence[Atom]) -> bool:
+    unexplained_var = None
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+
+        if vrs_l == 3:
+            if unexplained_var is not None:
+                return True
+            else:
+                unexplained_var = vrs[2]
+        elif vrs_l == 1 and unexplained_var is not None:
+            if vrs[0] == unexplained_var:
+                unexplained_var = None
+
+    return False
+
+
 def new_input_exists(atoms: Sequence[Atom]) -> bool:
     var_set = set()
     special_var_set = set()
