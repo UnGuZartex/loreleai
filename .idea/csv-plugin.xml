@@ -17,6 +17,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/Search/SearchMain.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/utility/datapreprocessor.py">
           <value>
             <Attribute>
@@ -32,6 +39,13 @@
           </value>
         </entry>
         <entry key="/utility/trainnetwork.py">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
+        <entry key="/utility/trainnetwork_covered.py">
           <value>
             <Attribute>
               <option name="separator" value="," />

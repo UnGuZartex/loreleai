@@ -1,7 +1,7 @@
 from functools import reduce
 
 from loreleai.language.lp import Body, Atom, Not, Predicate
-from .utilities import are_variables_connected
+from .utilities import are_variables_connected, literal_exist_g1_same_variables, get_recursive_calls_amount
 
 """
 It contains the functions used to prune the search space
@@ -94,5 +94,15 @@ def has_duplicated_literal(head: Atom, body: Body) -> bool:
     return len(body) != len(set(body.get_literals()))
 
 
+def has_double_recursion(head: Atom, body: Body) -> bool:
+    """
+    Returns True if a recursive call is called twice in the clause
+    """
+    return get_recursive_calls_amount(head, body) >= 2
 
 
+def has_g1_same_vars_in_literal(head: Atom, body: Body) -> bool:
+    """
+    Returns True if there exists a literal with all same vars
+    """
+    return literal_exist_g1_same_variables([x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()])

@@ -3,21 +3,24 @@ from abc import ABC, abstractmethod
 
 from loreleai.reasoning.lp import LPSolver
 from loreleai.learning.task import Knowledge, Task
-from loreleai.language.lp import Clause,Atom,Procedure
+from loreleai.language.lp import Clause, Atom, Procedure
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace, HypothesisSpace
 from loreleai.learning.eval_functions import EvalFunction
 import datetime
+
 
 class Learner(ABC):
     """
     Base class for all learners
     """
+
     def __init__(self):
         self._learnresult = LearnResult()
 
     @abstractmethod
     def learn(self, examples: Task, knowledge: Knowledge, hypothesis_space: HypothesisSpace):
         raise NotImplementedError()
+
 
 """
 This is an abstract learner class that defines a learner with the configurable options.
@@ -38,28 +41,29 @@ It is implemented as a template learner - you still need to provide the followin
 The learner does not handle recursions correctly!
 """
 
+
 class LearnResult:
     """
     The LearnResult class holds statistics about the learning process.
     It is implemented as a dict and supports indexing [] as usual.
     """
+
     def __init__(self):
         self.info = dict()
 
-    def __getitem__(self,key):
+    def __getitem__(self, key):
         return self.info[key]
 
-    def __setitem__(self,key,val):
+    def __setitem__(self, key, val):
         self.info[key] = val
-    
+
     def __repr__(self):
         max_keylength = max([len(str(k)) for k in self.info.keys()])
         output_str = "Result of learning: \n"
 
-        for key,val in self.info.items():
-            output_str += str(key) + ":" + " "*(max_keylength - len(str(key))+2) + str(val) + "\n"
+        for key, val in self.info.items():
+            output_str += str(key) + ":" + " " * (max_keylength - len(str(key)) + 2) + str(val) + "\n"
         return output_str
-
 
 
 class TemplateLearner(Learner):
@@ -69,10 +73,10 @@ class TemplateLearner(Learner):
         self._candidate_pool = []
         self._eval_fn = eval_fn
         self._print = do_print
-        
+
         # Statistics about learning process
         self._prolog_queries = 0
-        self._intermediate_coverage = []     # Coverage of examples after every iteration
+        self._intermediate_coverage = []  # Coverage of examples after every iteration
 
         super().__init__()
 
@@ -139,26 +143,26 @@ class TemplateLearner(Learner):
         # add_to_cache(node,key,val)
         # retrieve_from_cache(node,key) -> val or None
         # remove_from_cache(node,key) -> None
-        
+
         # Cache holds sets of examples that were covered before
-        covered = hypothesis_space.retrieve_from_cache(clause,"covered")
+        covered = hypothesis_space.retrieve_from_cache(clause, "covered")
 
         # We have executed this clause before
         if covered is not None:
             # Note that _eval.fn.evaluate() will ignore clauses in `covered`
             # that are not in the current Task
-            result = self._eval_fn.evaluate(clause,examples,covered)
+            result = self._eval_fn.evaluate(clause, examples, covered)
             # print("No query here.")
             return result
         else:
             covered = self._execute_program(clause)
             # if 'None', i.e. trivial hypothesis, all clauses are covered
             if covered is None:
-                pos,neg = examples.get_examples()
+                pos, neg = examples.get_examples()
                 covered = pos.union(neg)
 
-            result = self._eval_fn.evaluate(clause,examples,covered)
-            hypothesis_space.add_to_cache(clause,"covered",covered)
+            result = self._eval_fn.evaluate(clause, examples, covered)
+            hypothesis_space.add_to_cache(clause, "covered", covered)
             return result
 
     @abstractmethod
@@ -169,7 +173,8 @@ class TemplateLearner(Learner):
         raise NotImplementedError()
 
     @abstractmethod
-    def process_expansions(self, examples: Task, exps: typing.Sequence[Clause], hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
+    def process_expansions(self, examples: Task, exps: typing.Sequence[Clause],
+                           hypothesis_space: TopDownHypothesisSpace) -> typing.Sequence[Clause]:
         """
         Processes the expansions of a clause
         It can be used to eliminate useless expansions (e.g., the one that have no solution, ...)
@@ -195,7 +200,8 @@ class TemplateLearner(Learner):
         current_cand = None
         score = -100
 
-        while current_cand is None or (len(self._candidate_pool) > 0 and not self.stop_inner_search(score, examples, current_cand)):
+        while current_cand is None or (
+                len(self._candidate_pool) > 0 and not self.stop_inner_search(score, examples, current_cand)):
             # get first candidate from the pool
             current_cand = self.get_from_pool()
 
@@ -213,9 +219,8 @@ class TemplateLearner(Learner):
 
         if self._print:
             print(f"- New clause: {current_cand}")
-            print(f"- Candidates has value {round(score,2)} for metric '{self._eval_fn.name()}'")
+            print(f"- Candidates has value {round(score, 2)} for metric '{self._eval_fn.name()}'")
         return current_cand
-        
 
     def learn(self, examples: Task, knowledge: Knowledge, hypothesis_space: TopDownHypothesisSpace):
         """
@@ -229,7 +234,6 @@ class TemplateLearner(Learner):
         i = 0
         start = datetime.datetime.now()
 
-
         while len(final_program) == 0 or len(pos) > 0:
             # learn na single clause
 
@@ -237,8 +241,8 @@ class TemplateLearner(Learner):
                 print(f"Iteration {i}")
                 print("- Current program:")
                 for program_clause in final_program:
-                    print("\t"+str(program_clause))
-                
+                    print("\t" + str(program_clause))
+
             cl = self._learn_one_clause(examples_to_use, hypothesis_space)
             final_program.append(cl)
 
@@ -248,10 +252,10 @@ class TemplateLearner(Learner):
             # Find intermediate quality of program at this point, add to learnresult (don't cound these as Prolog queries)
             c = set()
             for cl in final_program:
-                c = c.union(self._execute_program(cl,count_as_query=False))
+                c = c.union(self._execute_program(cl, count_as_query=False))
             pos_covered = len(c.intersection(examples._positive_examples))
             neg_covered = len(c.intersection(examples._negative_examples))
-            self.__intermediate_coverage.append((pos_covered,neg_covered))
+            self.__intermediate_coverage.append((pos_covered, neg_covered))
 
             # Remove covered examples and start next iteration
             pos, neg = examples_to_use.get_examples()
@@ -260,7 +264,7 @@ class TemplateLearner(Learner):
             examples_to_use = Task(pos, neg)
             i += 1
 
-        total_time = (datetime.datetime.now()-start).total_seconds()
+        total_time = (datetime.datetime.now() - start).total_seconds()
         if self._print:
             print("Done! Search took {:.5f} seconds.".format(total_time))
 
