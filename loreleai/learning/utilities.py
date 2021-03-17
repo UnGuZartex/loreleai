@@ -309,7 +309,7 @@ def unexplained_last_var_exists(atoms: Sequence[Atom]) -> bool:
 
 def new_input_exists(atoms: Sequence[Atom]) -> bool:
     var_set = set()
-    special_var_set = set()
+    var_set_full = set()
     first = True
 
     for atm in atoms:
@@ -319,15 +319,15 @@ def new_input_exists(atoms: Sequence[Atom]) -> bool:
 
         if first is False:
             if vrs_l == 1:
-                if var not in var_set and var not in special_var_set:
+                if var not in var_set_full:
                     return True
             else:
                 if var not in var_set:
                     return True
 
         var_set.add(var)
-        if vrs_l == 3:
-            special_var_set.add(vrs[2])
+        for v in vrs:
+            var_set_full.add(v)
 
         first = False
 

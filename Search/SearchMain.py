@@ -58,8 +58,8 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
                                                       lambda x, y: head_first(x, y)],
                                 expansion_hooks_reject=[#lambda x, y: has_singleton_vars(x, y),
                                                         # Singleton-vars constraint is reduced to this constraint
-                                                        #lambda x, y: has_not_previous_output_as_input(x, y), # Strict
-                                                        lambda x, y: has_new_input(x, y), # Not as strict
+                                                        lambda x, y: has_not_previous_output_as_input(x, y), # Strict
+                                                        #lambda x, y: has_new_input(x, y), # Not as strict
                                                         lambda x, y: has_unexplained_last_var(x, y), # For the 'write' predicate
                                                         lambda x, y: has_duplicated_literal(x, y),
                                                         lambda x, y: has_g1_same_vars_in_literal(x, y),
