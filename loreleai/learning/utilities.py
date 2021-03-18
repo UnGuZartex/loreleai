@@ -367,6 +367,16 @@ def _get_body_predicates_list(body: Body):
     return [x.get_predicate() for x in body.get_literals()]
 
 
+def endless_recursion_exists(head: Atom, body: Body) -> bool:
+    for literal in body.get_literals():
+        if head.get_predicate() == literal.get_predicate():
+            if literal.get_variables()[0] == head.get_variables()[0]:
+                return True
+            return False
+
+    return False
+
+
 def get_recursive_calls_amount(head: Atom, body: Body) -> int:
     rec_count = 0
     for predicate in _get_body_predicates_list(body):

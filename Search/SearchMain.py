@@ -10,7 +10,7 @@ from loreleai.language.lp import c_pred, Clause, Procedure, Atom
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
 from loreleai.learning.language_filtering import has_singleton_vars, has_duplicated_literal, connected_clause, \
     has_g1_same_vars_in_literal, has_double_recursion, has_duplicated_var_set, head_first, only_1_pred_for_1_var, \
-    has_new_input, has_not_previous_output_as_input, has_unexplained_last_var
+    has_new_input, has_not_previous_output_as_input, has_unexplained_last_var, has_endless_recursion
 from loreleai.learning.language_manipulation import plain_extension
 from loreleai.learning.task import Task, Knowledge
 from loreleai.reasoning.lp.prolog import SWIProlog, Prolog
@@ -64,7 +64,8 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
                                                         lambda x, y: has_duplicated_literal(x, y),
                                                         lambda x, y: has_g1_same_vars_in_literal(x, y),
                                                         lambda x, y: has_duplicated_var_set(x, y),
-                                                        lambda x, y: has_double_recursion(x, y)])
+                                                        lambda x, y: has_double_recursion(x, y),
+                                                        lambda x, y: has_endless_recursion(x, y)])
 
     # create Prolog and learner instance
     prolog = SWIProlog()
