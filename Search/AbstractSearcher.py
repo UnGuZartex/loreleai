@@ -185,6 +185,8 @@ class AbstractSearcher(ABC):
         """
 
         self._solver.consult(background_location)
+        self._solver.asserta(c_pred("test_task", 1)(Structure(c_functor("s", 2), [List([]), List([])])
+        
         final_program = []
         examples_to_use = examples
         pos, _ = examples_to_use.get_examples()
