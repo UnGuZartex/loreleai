@@ -162,18 +162,21 @@ class AbstractSearcher(ABC):
             if first:
                 self.example_weights[current_cand] = self.get_initial_weights(examples)
                 first = False
-
-            # expand the candidate and get possible expansions
-            _ = hypothesis_space.expand(current_cand)
-            exps = hypothesis_space.get_successors_of(current_cand)
-
-            # Get scores for primitives using current candidate and each example
-            primitives = self.get_best_primitives(examples, current_cand)
-            exps = self.process_expansions(current_cand, examples, exps, primitives, hypothesis_space)
-
-            # add into pool
-            self.put_into_pool(exps)
+                
             score = self.evaluate(examples, current_cand)
+                
+            if not isinstance(current_cand, Recursion): 
+                # expand the candidate and get possible expansions
+                _ = hypothesis_space.expand(current_cand)
+                exps = hypothesis_space.get_successors_of(current_cand)
+
+                # Get scores for primitives using current candidate and each example
+                primitives = self.get_best_primitives(examples, current_cand)
+                exps = self.process_expansions(current_cand, examples, exps, primitives, hypothesis_space)
+
+                # add into pool
+                self.put_into_pool(exps)
+                
             print("length: ", len(current_cand))
             print(current_cand)
 
