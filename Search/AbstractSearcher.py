@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from queue import PriorityQueue
 
 import numpy
+from pylo.language.commons import c_pred, Structure, c_functor, List
 
 from Search.Triplet import Triplet
 from loreleai.language.lp import (
@@ -188,7 +189,7 @@ class AbstractSearcher(ABC):
         """
 
         self._solver.consult(background_location)
-        self._solver.asserta(c_pred("test_task", 1)(Structure(c_functor("s", 2), [List([]), List([])])
+        self._solver.asserta(c_pred("test_task", 1)(Structure(c_functor("s", 2), [List([]), List([])])))
         
         final_program = []
         examples_to_use = examples
