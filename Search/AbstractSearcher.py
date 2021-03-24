@@ -165,6 +165,8 @@ class AbstractSearcher(ABC):
                 first = False
                 
             score = self.evaluate(examples, current_cand)
+            print("length: ", len(current_cand))
+            print(current_cand)
                 
             if not isinstance(current_cand, Recursion): 
                 # expand the candidate and get possible expansions
@@ -177,9 +179,6 @@ class AbstractSearcher(ABC):
 
                 # add into pool
                 self.put_into_pool(exps)
-                
-            print("length: ", len(current_cand))
-            print(current_cand)
 
         return current_cand
 

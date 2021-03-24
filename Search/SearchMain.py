@@ -52,7 +52,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=total_predicates,
                                 head_constructor=c_pred("test_task", 1),
-                                # TODO add new hooks
+                                recursive_procedures=True,
                                 expansion_hooks_keep=[lambda x, y: connected_clause(x, y),
                                                       lambda x, y: only_1_pred_for_1_var(x, y),
                                                       lambda x, y: head_first(x, y)],

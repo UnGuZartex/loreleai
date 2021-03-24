@@ -119,6 +119,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         encoded_current_cand = clause_to_list(current_cand, self.current_primitives.tolist())
 
         # eliminate every clause with more body literals than allowed
+        print(exps)
         exps = [cl for cl in exps if len(cl) <= self._max_body_literals]
 
         # check if every clause has solutions
