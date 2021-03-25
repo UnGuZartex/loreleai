@@ -167,6 +167,7 @@ class AbstractSearcher(ABC):
             score = self.evaluate(examples, current_cand)
             print("length: ", len(current_cand))
             print(current_cand)
+            print("options: ", self._candidate_pool.qsize())
                 
             if not isinstance(current_cand, Recursion): 
                 # expand the candidate and get possible expansions

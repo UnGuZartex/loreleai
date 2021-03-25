@@ -3,7 +3,7 @@ from functools import reduce
 from loreleai.language.lp import Body, Atom, Not, Predicate
 from .utilities import are_variables_connected, literal_exist_g1_same_variables, get_recursive_calls_amount, \
     duplicated_var_set_exists, only_1_pred_exists_for_1_var, new_input_exists, not_previous_output_as_input_exists, \
-    unexplained_last_var_exists, endless_recursion_exists
+    unexplained_last_var_exists, endless_recursion_exists, strict_unexplained_last_var_exists
 
 """
 It contains the functions used to prune the search space
@@ -123,6 +123,10 @@ def only_1_pred_for_1_var(head: Atom, body: Body) -> bool:
 
 def has_unexplained_last_var(head: Atom, body: Body) -> bool:
     return unexplained_last_var_exists([x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()])
+
+
+def has_unexplained_last_var_strict(head: Atom, body: Body) -> bool:
+    return strict_unexplained_last_var_exists([x.get_atom() if isinstance(x, Not) else x for x in body.get_literals()])
 
 
 def has_new_input(head: Atom, body: Body) -> bool:
