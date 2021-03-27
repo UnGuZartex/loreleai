@@ -59,14 +59,22 @@ print("all solutions after adding list ", rv)
 pl = SWIProlog()
 pl.consult("../inputfiles/StringTransformations_BackgroundKnowledge.pl")
 test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
-p = c_pred("is_uppercase_aux", 1)
+
 test_task = c_pred("test_task", 1)
 is_lowercase = c_pred("is_uppercase", 1)  # is_lowercase(s([H|_],_)):-is_lowercase_aux(H).
+not_space = c_pred("not_space", 1)  # not_space(A):- \+is_space(A).
 A = c_var("X")
-query = p(X)
 tex = test.get("b113").pop()  # test_task(s(['o','x','1',' ','3','c','p'],['O','X','1','3','C','P']))
+
 cl = test_task(A) <= is_lowercase(A)
 pl.asserta(cl)
 print(tex)
 sol = pl.has_solution(tex)  # Returns false??
 print(sol)
+pl.retract(cl)
+
+cl = test_task(A) <= not_space(A)
+pl.asserta(cl)
+sol = pl.has_solution(tex)  # Returns true, good
+print(sol)
+pl.retract(cl)
