@@ -16,11 +16,20 @@ B = c_var("B")
 # Everything in this set starts with lowercase 'o' in the input and uppercase 'O' in output, like the example above
 # One example in this set is used to test if it's covered by the clauses below.
 tex = test.get("b113").pop()
+print(tex)
 
 
 # We test whether the example starts without a space, this should be true
 not_space = c_pred("not_space", 1)  # not_space(A):- \+is_space(A).
 cl = test_task(A) <= not_space(A)
+pl.asserta(cl)
+sol = pl.has_solution(tex)  # Returns true, good
+print(sol)
+pl.retract(cl)
+
+# We test whether the example is not empty, this should be true
+not_empty = c_pred("not_empty", 1)  # not_empty(s([_|_],_)).
+cl = test_task(A) <= not_empty(A)
 pl.asserta(cl)
 sol = pl.has_solution(tex)  # Returns true, good
 print(sol)
@@ -38,7 +47,6 @@ print(rv)  # Prints all lowercase letters, good
 is_lowercase = c_pred("is_lowercase", 1)  # is_lowercase(s([H|_],_)):-is_lowercase_aux(H).
 cl = test_task(A) <= is_lowercase(A)
 pl.asserta(cl)
-print(tex)
 sol = pl.has_solution(tex)  # Returns false, not good (?)
 print(sol)
 pl.retract(cl)
@@ -56,7 +64,6 @@ print(rv)  # Prints letter pairs, good
 mk_uppercase = c_pred("mk_uppercase", 2)  # mk_uppercase(s([H1|Ta],[H2|Tb]),s(Ta,Tb)):- convert_case(H2,H1).
 cl = test_task(A) <= mk_uppercase(A, B)
 pl.asserta(cl)
-print(tex)
 sol = pl.has_solution(tex)  # Returns false, not good (?)
 print(sol)
 pl.retract(cl)
