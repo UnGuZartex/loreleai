@@ -22,7 +22,6 @@ write1(s(A,[H|Tb]),s(A,Tb),H).
 
 copyskip1(s([H|Ta],[H|Tb]),s(Ta,Tb)).
 
-
 mk_uppercase(s([H1|Ta],[H2|Tb]),s(Ta,Tb)):- convert_case(H2,H1).
 mk_lowercase(s([H1|Ta],[H2|Tb]),s(Ta,Tb)):- convert_case(H1,H2).
 

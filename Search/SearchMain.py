@@ -1,25 +1,22 @@
 import random
 import string
 
-from pylo.language.commons import c_functor, List, Structure
-
 from Search.NeuralSearcher1 import NeuralSearcher1
 from filereaders.knowledgereader import createKnowledge
 from filereaders.taskreader import readPositiveOfType
-from loreleai.language.lp import c_pred, Clause, Procedure, Atom
+from loreleai.language.lp import c_pred
 from loreleai.learning.hypothesis_space import TopDownHypothesisSpace
-from loreleai.learning.language_filtering import has_singleton_vars, has_duplicated_literal, connected_clause, \
+from loreleai.learning.language_filtering import has_duplicated_literal, connected_clause, \
     has_g1_same_vars_in_literal, has_double_recursion, has_duplicated_var_set, head_first, only_1_pred_for_1_var, \
-    has_new_input, has_not_previous_output_as_input, has_unexplained_last_var, has_endless_recursion, \
+    has_not_previous_output_as_input, has_endless_recursion, \
     has_unexplained_last_var_strict
 from loreleai.learning.language_manipulation import plain_extension
-from loreleai.learning.task import Task, Knowledge
-from loreleai.reasoning.lp.prolog import SWIProlog, Prolog
+from loreleai.learning.task import Task
+from loreleai.reasoning.lp.prolog import SWIProlog
 
 
 def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
-    backgroundknow, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl", task_id)
-    #train = readPositiveOfType("../inputfiles/StringTransformationProblems", "train_task")
+    bk, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl", task_id)
     test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
 
     neg = set()
@@ -49,7 +46,6 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
             filtered_predicates.append(predicate)
 
 
-    # TODO recursion
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=total_predicates,
                                 head_constructor=c_pred("test_task", 1),
@@ -72,15 +68,15 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     # create Prolog and learner instance
     prolog = SWIProlog()
     learner = NeuralSearcher1(solver_instance=prolog, primitives=filtered_predicates,
-                              model_location="../utility/Saved_model_covered", max_body_literals=15,
-                              amount_chosen_from_nn=10, filter_amount=500, threshold=0.1)
+                              model_location="../utility/Saved_model_covered", max_body_literals=10,
+                              amount_chosen_from_nn=22, filter_amount=500, threshold=0.1)
 
     program = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
     print(program)
 
 
 def main():
-    train_task("b3", 2, 2)
+    train_task("b113", 2, 2)
 
 
 if __name__ == "__main__":

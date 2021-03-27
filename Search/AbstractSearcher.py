@@ -197,6 +197,7 @@ class AbstractSearcher(ABC):
         final_program = []
         examples_to_use = examples
         pos, _ = examples_to_use.get_examples()
+        print(pos)
 
         while len(final_program) == 0 or len(pos) > 0:
             # learn a single clause

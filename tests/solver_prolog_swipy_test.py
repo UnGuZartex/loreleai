@@ -53,3 +53,11 @@ query3 = r(X, Y)
 
 rv = pl.query(query3)
 print("all solutions after adding list ", rv)
+
+pl = SWIProlog()
+pl.consult("../inputfiles/StringTransformations_BackgroundKnowledge.pl")
+p = c_pred("is_uppercase_aux", 1)
+X = c_var("X")
+query = p(X)
+rv = pl.query(query)
+print(rv)
