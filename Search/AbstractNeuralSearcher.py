@@ -55,6 +55,10 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         print(len(covered_neg))
         print(len(covered_pos))
+        if (len(covered_pos) + len(covered_neg)) == 0:
+            print(0)
+        else:
+            print(len(covered_pos) / (len(covered_pos) + len(covered_neg)))
         if len(covered_neg) > 0:
             return 0
         else:
@@ -111,6 +115,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         indices = numpy.argpartition(scores, -self.amount_chosen_from_nn)[-self.amount_chosen_from_nn:]
 
         # TODO beste x volgens ordening of gwn zoals nu, beste x random volgorde?
+        print(self.current_primitives[indices])
         return self.current_primitives[indices]
 
     def process_expansions(self, current_cand: typing.Union[Clause, Procedure], examples: Task,
@@ -119,6 +124,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
         encoded_current_cand = clause_to_list(current_cand, self.current_primitives.tolist())
 
         # eliminate every clause with more body literals than allowed
+        print(exps)
         exps = [cl for cl in exps if len(cl) <= self._max_body_literals]
 
         # check if every clause has solutions
@@ -143,6 +149,7 @@ class AbstractNeuralSearcher(AbstractSearcher):
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])
 
+        print(new_exps)
         new_exps = sorted(new_exps, key=cmp_to_key(Triplet.comparator), reverse=True)[:self.filter_amount]
         new_exps_real = []
 

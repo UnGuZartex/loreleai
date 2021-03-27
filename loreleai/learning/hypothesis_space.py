@@ -389,7 +389,7 @@ class TopDownHypothesisSpace(HypothesisSpace):
                 raise Exception(f"Unknown head constructor ({type(self._head_constructor)})")
 
             for r_ind in range(len(recursive_cases)):
-                expansions = expansions.union([node + recursive_cases[r_ind]])
+                expansions = expansions.union([recursive_cases[r_ind]])
 
         # add expansions to the hypothesis space
         # if self._insert_node returns False, forget the expansion
@@ -433,7 +433,7 @@ class TopDownHypothesisSpace(HypothesisSpace):
         returns the expanded constructs
         if already expanded, returns an empty list
         """
-        body = node.get_body()
+        body = self._extract_body(node)
 
         if (
             "partner" in self._hypothesis_space.nodes[body]
@@ -605,7 +605,8 @@ class TopDownHypothesisSpace(HypothesisSpace):
             self.reset_pointer(pointer_name, init_pointer_value)
 
         # set the pointer to the last explored clause
-        self.reset_pointer(pointer_name, last_pointer_value)
+        # set the point to the root, by default
+        self.reset_pointer(pointer_name) #, last_pointer_value)
 
         return recursions
 
@@ -691,10 +692,10 @@ class TopDownHypothesisSpace(HypothesisSpace):
         Returns all successors of the node
         """
         if isinstance(node, Body):
-            return list(self._hypothesis_space.successors(node))
+            return reduce(lambda x, y: x + y, [self.retrieve_clauses_from_body(x) if not self._check_if_recursive(x) else self._get_recursions(x) for x in self._hypothesis_space.successors(node)], [])
         else:
             body = self._extract_body(node)
-            return reduce(lambda x, y: x + y, [self.retrieve_clauses_from_body(x) for x in self._hypothesis_space.successors(body)], [])
+            return reduce(lambda x, y: x + y, [self.retrieve_clauses_from_body(x) if not self._check_if_recursive(x) else self._get_recursions(x) for x in self._hypothesis_space.successors(body)], [])
 
     def remove_all_edges(self):
         self._hypothesis_space = create_empty_copy(self._hypothesis_space,with_data=True)

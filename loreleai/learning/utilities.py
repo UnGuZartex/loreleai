@@ -258,12 +258,144 @@ def literal_exist_g1_same_variables(atoms: Sequence[Atom]) -> bool:
     return False
 
 
+def duplicated_var_set_exists(atoms: Sequence[Atom]) -> bool:
+    var_sets = []
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+        if vrs_l != 1:
+            var_sets.append(frozenset(vrs))
+
+    if len(var_sets) != len(set(var_sets)):
+        return True
+
+    return False
+
+
+def only_1_pred_exists_for_1_var(atoms: Sequence[Atom]) -> bool:
+    vars = []
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+        if vrs_l == 1:
+            vars.append(vrs[0])
+
+    if len(vars) == len(set(vars)):
+        return True
+
+    return False
+
+
+def unexplained_last_var_exists(atoms: Sequence[Atom]) -> bool:
+    unexplained_var = None
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+
+        if vrs_l == 3:
+            if unexplained_var is not None:
+                return True
+            else:
+                unexplained_var = vrs[2]
+        elif vrs_l == 1 and unexplained_var is not None:
+            if vrs[0] == unexplained_var:
+                unexplained_var = None
+
+    return False
+
+
+def strict_unexplained_last_var_exists(atoms: Sequence[Atom]) -> bool:
+    unexplained_var = None
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+
+        if unexplained_var is not None:
+            if vrs_l == 1 and vrs[0] == unexplained_var:
+                return False
+            else:
+                return True
+        elif vrs_l == 3:
+            unexplained_var = vrs[2]
+
+    return False
+
+
+def new_input_exists(atoms: Sequence[Atom]) -> bool:
+    var_set = set()
+    var_set_full = set()
+    first = True
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+        var = vrs[0]
+
+        if first is False:
+            if vrs_l == 1:
+                if var not in var_set_full:
+                    return True
+            else:
+                if var not in var_set:
+                    return True
+
+        var_set.add(var)
+        for v in vrs:
+            var_set_full.add(v)
+
+        first = False
+
+    return False
+
+
+def not_previous_output_as_input_exists(atoms: Sequence[Atom]) -> bool:
+    last_output = None
+    last_special_output = None
+    first = True
+
+    for atm in atoms:
+        vrs = atm.get_variables()
+        vrs_l = len(vrs)
+
+        if first is True:
+            last_output = vrs[0]
+            first = False
+        else:
+            if vrs_l == 1:
+                if last_output != vrs[0] and last_special_output != vrs[0]:
+                    return True
+            else:
+                if last_output != vrs[0]:
+                    return True
+
+            if vrs_l > 1:
+                last_output = vrs[1]
+
+                if vrs_l == 3:
+                    last_special_output = vrs[2]
+
+    return False
+
+
 def _get_body_predicates_list(body: Body):
     return [x.get_predicate() for x in body.get_literals()]
 
 
-def get_recursive_calls_amount(head: Atom, body: Body) -> int:
+def endless_recursion_exists(head: Atom, body: Body) -> bool:
+    for literal in body.get_literals():
+        if head.get_predicate() == literal.get_predicate():
+            if literal.get_variables()[0] == head.get_variables()[0]:
+                return True
+            return False
 
+    return False
+
+
+def get_recursive_calls_amount(head: Atom, body: Body) -> int:
     rec_count = 0
     for predicate in _get_body_predicates_list(body):
         if head.get_predicate() == predicate:
