@@ -20,7 +20,7 @@ tex = test.get("b113").pop()
 
 # We test whether the example starts without a space, this should be true
 not_space = c_pred("not_space", 1)  # not_space(A):- \+is_space(A).
-cl = test_task(A) <= not_space(A)# We test whether the facts are loaded in correctly
+cl = test_task(A) <= not_space(A)
 pl.asserta(cl)
 sol = pl.has_solution(tex)  # Returns true, good
 print(sol)
