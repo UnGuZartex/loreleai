@@ -79,57 +79,6 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     print(program)
 
 
-    ''''
-    
-    # NN keuze
-    [is_lowercase_aux is_space not_space not_lowercase is_uppercase_aux write1
-     copyskip1 not_uppercase is_lowercase mk_lowercase]
-     
-    # alle expansies voor filteren
-    [test_task(A): - is_empty(A), test_task(A): - not_empty(A), test_task(A): - is_space(A), test_task(A): - not_space(
-        A), test_task(A): - is_uppercase(A), test_task(A): - is_uppercase_aux(A), test_task(A): - not_uppercase(
-        A), test_task(A): - is_lowercase(A), test_task(A): - is_lowercase_aux(A), test_task(A): - not_lowercase(
-        A), test_task(A): - is_letter(A), test_task(A): - not_letter(A), test_task(A): - is_number(A), test_task(
-        A): - is_number_aux(A), test_task(A): - not_number(A), test_task(A): - skip1(A, B), test_task(A): - copy1(A,
-                                                                                                                  B), test_task(
-        A): - write1(A, B, C), test_task(A): - copyskip1(A, B), test_task(A): - mk_uppercase(A, B), test_task(
-        A): - convert_case(A, B), test_task(A): - mk_lowercase(A, B)]
-        
-    # triplets
-    [ < Search.Triplet.Triplet
-    object
-    at
-    0x7f4d3d35bca0 >, < Search.Triplet.Triplet
-    object
-    at
-    0x7f4d3f68e040 >, < Search.Triplet.Triplet
-    object
-    at
-    0x7f4d3d3c9ee0 >, < Search.Triplet.Triplet
-    object
-    at
-    0x7f4d3d3c9520 >, < Search.Triplet.Triplet
-    object
-    at
-    0x7f4d3d3c9b50 >, < Search.Triplet.Triplet
-    object
-    at
-    0x7f4d3d3c91f0 >, < Search.Triplet.Triplet
-    object
-    at
-    0x7f4d3d3c97c0 >]
-    
-    # triplets vertaald
-    [(-0.29411764705882354, -5, 1, 'test_task(A) :- write1(A,B,C)', test_task(A) :- write1(A, B, C)), (
-    -0.0, 0, 1, 'test_task(A) :- copyskip1(A,B)', test_task(A) :- copyskip1(A, B)), (
-    200, 0, 1, 'test_task(A) :- is_space(A)', test_task(A) :- is_space(A)), (
-    200, 0, 1, 'test_task(A) :- is_uppercase_aux(A)', test_task(A) :- is_uppercase_aux(A)), (
-    200, 0, 1, 'test_task(A) :- is_lowercase(A)', test_task(A) :- is_lowercase(A)), (
-    200, 0, 1, 'test_task(A) :- is_lowercase_aux(A)', test_task(A) :- is_lowercase_aux(A)), (
-    200, 0, 1, 'test_task(A) :- mk_lowercase(A,B)', test_task(A) :- mk_lowercase(A, B))]
-    12'''
-
-
 def main():
     train_task("b3", 2, 2)
 
