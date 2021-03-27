@@ -1,5 +1,5 @@
-# TODO Probably useless file now... although we still need the predicates :)
-
+# This file has no specific use for reading in the background knowledge as this is specifically done with the .consult command in the solver. Instead this filereader
+# is mainly used to gather all the primitives present in the background knowledge.
 import re
 
 from pylo.language.commons import c_pred, c_const, c_var, List, Predicate
@@ -10,17 +10,20 @@ from loreleai.learning import Knowledge
 
 IGNORECOUNTER = 0
 
-
+# This function reads the background knowledge and gathers all primitives.
 def createKnowledge(relativepath: str, functionName: str) -> Tuple[Knowledge, Set[Predicate]]:
     knowledge = None
     predicateList = list()
     with open(relativepath, "r") as file:
+        # Read every line of the file
         for line in file:
             if not line.isspace():
                 line = line.replace("\n", "")
                 if not ":-" in line:
+                    # If the current line is a fact, try to parse it immediatly
                     atom = string_to_atom(line, functionName, predicateList)
-                    if knowledge is None:  # For some reason this weird if/else is necessary because lib broke
+                    # Add the fact to the knowledge
+                    if knowledge is None:  
                         knowledge = Knowledge(atom)
                     else:
                         knowledge._add(
@@ -28,6 +31,7 @@ def createKnowledge(relativepath: str, functionName: str) -> Tuple[Knowledge, Se
                         )
 
                 else:
+                    # If the current line is a clause, try to parse its head and body separatly and combine it afterwards.
                     line = line.split(":-")
                     head = line[0] # Atom
                     head = string_to_atom(head, functionName, predicateList)
@@ -41,6 +45,7 @@ def createKnowledge(relativepath: str, functionName: str) -> Tuple[Knowledge, Se
                             totalbody.append(Not(string_to_atom(clause, functionName, predicateList)))
                         else:
                             totalbody.append(string_to_atom(clause, functionName, predicateList))
+                    # Add the clause to the background knowledge
                     if knowledge is None:  # For some reason this weird if/else is necessary because lib broke
                         knowledge = Knowledge(Clause(head, totalbody))
                     else:
@@ -49,14 +54,13 @@ def createKnowledge(relativepath: str, functionName: str) -> Tuple[Knowledge, Se
                         )
     return knowledge, predicateList
 
-
+# Convert a string representation of an atom to a pylo atom object
 def string_to_atom(line: str, s: str, predicateList: list) -> Atom:
     lineheader = line.split("(")[0]
-    predicates = re.findall('(s?\([^()]*\)|[,(][^()]*[,)])', line) # Correct this regex to also find H in write1
+    predicates = re.findall('(s?\([^()]*\)|[,(][^()]*[,)])', line)
     allitems = []
     for item in predicates:
         if item.startswith("s"):
-            # Need to handle items with s in it (this is a specific function)
             item = item.replace("s(", s + "(")
             item = string_to_atom(item, s, predicateList)
             allitems.append(item)
@@ -67,7 +71,7 @@ def string_to_atom(line: str, s: str, predicateList: list) -> Atom:
     predicateList.append(headerpredicate)
     return Atom(headerpredicate, allitems)
 
-
+# Convert a string representation of a literal to a literal pylo object
 def string_to_lit(totalitems, allitems):
     items = totalitems.replace("(", "").replace(")", "").split(",")
     if len(items) > 1:
@@ -76,7 +80,7 @@ def string_to_lit(totalitems, allitems):
     else:
         string_to_lit_help(items[0], allitems)
 
-
+# Help function for converting constants and variables
 def string_to_lit_help(item, allitems):
     global IGNORECOUNTER
     if "[" in item:
