@@ -46,7 +46,7 @@ def createKnowledge(relativepath: str, functionName: str) -> Tuple[Knowledge, Se
                         else:
                             totalbody.append(string_to_atom(clause, functionName, predicateList))
                     # Add the clause to the background knowledge
-                    if knowledge is None:  # For some reason this weird if/else is necessary because lib broke
+                    if knowledge is None:
                         knowledge = Knowledge(Clause(head, totalbody))
                     else:
                         knowledge._add(
