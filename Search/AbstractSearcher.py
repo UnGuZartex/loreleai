@@ -163,13 +163,16 @@ class AbstractSearcher(ABC):
             if first:
                 self.example_weights[current_cand] = self.get_initial_weights(examples)
                 first = False
-                
+
+            print("-------------------------------------------------------")
+            print("CURRENT CANDIDATE: ")
+            print("\t ", current_cand)
+            print("STATS: ")
             score = self.evaluate(examples, current_cand)
-            print("length: ", len(current_cand))
-            print(current_cand)
-            print("options: ", self._candidate_pool.qsize())
+            print("\t length: ", len(current_cand))
+            print("\t Pool size: ", self._candidate_pool.qsize(), "\n")
                 
-            if not isinstance(current_cand, Recursion): 
+            if not current_cand.is_recursive():
                 # expand the candidate and get possible expansions
                 _ = hypothesis_space.expand(current_cand)
                 exps = hypothesis_space.get_successors_of(current_cand)
@@ -207,9 +210,12 @@ class AbstractSearcher(ABC):
             pos = pos.difference(covered)
 
             examples_to_use = Task(pos, neg)
+
             # Reset example weights
             self.example_weights = {}
-            print(final_program)
-            print(covered)
+
+            print("\n FOUND A RULE, CURRENT PROGRAM AND COVERED: ")
+            print("\t", final_program)
+            print("\t", covered)
 
         return final_program

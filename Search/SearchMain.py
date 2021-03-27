@@ -31,7 +31,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
         chosen_task_id = random.choice(list(test.keys()))
 
         # Choose random example and remove so it doesn't get picked again
-        chosen_neg_example = random.sample(test[chosen_task_id],1)[0]
+        chosen_neg_example = random.sample(test[chosen_task_id], 1)[0]
         test[chosen_task_id].remove(chosen_neg_example)
 
         # Add example to negative example list
@@ -53,7 +53,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=total_predicates,
                                 head_constructor=c_pred("test_task", 1),
-                                recursive_procedures=False,
+                                recursive_procedures=True,
                                 expansion_hooks_keep=[lambda x, y: connected_clause(x, y),
                                                       lambda x, y: only_1_pred_for_1_var(x, y),
                                                       lambda x, y: head_first(x, y)],
@@ -62,7 +62,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
                                                         lambda x, y: has_not_previous_output_as_input(x, y), # Strict
                                                         #lambda x, y: has_new_input(x, y), # Not as strict
                                                         #lambda x, y: has_unexplained_last_var(x, y), # For the 'write' predicate
-                                                        lambda x, y:has_unexplained_last_var_strict(x, y), # Strict version of above
+                                                        lambda x, y: has_unexplained_last_var_strict(x, y), # Strict version of above
                                                         lambda x, y: has_duplicated_literal(x, y),
                                                         lambda x, y: has_g1_same_vars_in_literal(x, y),
                                                         lambda x, y: has_duplicated_var_set(x, y),

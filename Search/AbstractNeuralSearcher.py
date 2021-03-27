@@ -53,12 +53,13 @@ class AbstractNeuralSearcher(AbstractSearcher):
         covered_pos = pos.intersection(covered)
         covered_neg = neg.intersection(covered)
 
-        print(len(covered_neg))
-        print(len(covered_pos))
+        print("\t covered neg: ", len(covered_neg))
+        print("\t covered pos: ", len(covered_pos))
         if (len(covered_pos) + len(covered_neg)) == 0:
-            print(0)
+            print("\t score: ", 0)
         else:
-            print(len(covered_pos) / (len(covered_pos) + len(covered_neg)))
+            print("\t score: ", len(covered_pos) / (len(covered_pos) + len(covered_neg)))
+
         if len(covered_neg) > 0:
             return 0
         else:
@@ -90,8 +91,8 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         # Filter examples (e.g. only use positive/negative examples)
         # examples = self.filter_examples(examples)
-        pos,neg = examples.get_examples()
-        # TODO nudat ik deze warning bekijk, klopt dit?
+        pos, neg = examples.get_examples()
+
         # Calculate nn output for each example
         for example in pos:
             # Update output
@@ -109,22 +110,38 @@ class AbstractNeuralSearcher(AbstractSearcher):
             nn_output = self.process_output(nn_output)
 
             # Update score vector
-            scores = self.update_score(current_cand, example, scores, -0.2*nn_output)
+            scores = self.update_score(current_cand, example, scores, -0.2 * nn_output)
 
         # Return x best primitives
         indices = numpy.argpartition(scores, -self.amount_chosen_from_nn)[-self.amount_chosen_from_nn:]
 
-        # TODO beste x volgens ordening of gwn zoals nu, beste x random volgorde?
-        print(self.current_primitives[indices])
+        # TODO now a random order but could be replaced to the ordering via the score
+        print("PRIMITIVES CHOSEN BY NN: ")
+        print(self.current_primitives[indices], "\n")
         return self.current_primitives[indices]
 
     def process_expansions(self, current_cand: typing.Union[Clause, Procedure], examples: Task,
-                           exps: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace):
+                           exps_raw: typing.Sequence[Clause], primitives, hypothesis_space: TopDownHypothesisSpace):
         # Encode current candidate to list
         encoded_current_cand = clause_to_list(current_cand, self.current_primitives.tolist())
 
+        print("EXPANSIONS BEFORE FILTERING: ")
+        print(exps_raw, "\n")
+
+        exps = []
+        first = True
+        for e in exps_raw:
+            if isinstance(e, Recursion):
+                if first:
+                    # With the current hooks, only one recursive case is possible
+                    exps.append(e.get_recursive_case()[0])
+                    print("FOUND FOLLOWING RECURSIVE CASE AS EXTENSION: ")
+                    print(e.get_recursive_case(), "\n")
+                first = False
+            else:
+                exps.append(e)
+
         # eliminate every clause with more body literals than allowed
-        print(exps)
         exps = [cl for cl in exps if len(cl) <= self._max_body_literals]
 
         # check if every clause has solutions
@@ -142,21 +159,20 @@ class AbstractNeuralSearcher(AbstractSearcher):
                     new_exp = Triplet(current_exp, pos, neg)
                     new_exps.append(new_exp)
 
-                    # TODO miss beter op moment daje hem uit pool neemt (minder berekeningen, stel je overloopt ze
-                    #  nie allemaal), idk if possible though
+                    # TODO maybe at another place for better performance (currently not used)
                     self.set_example_weights(current_cand, current_exp, examples)
             else:
                 # remove from hypothesis space if it does not
                 hypothesis_space.remove(exps[ind][0])
 
-        print(new_exps)
         new_exps = sorted(new_exps, key=cmp_to_key(Triplet.comparator), reverse=True)[:self.filter_amount]
         new_exps_real = []
 
         for triplet in new_exps:
             new_exps_real.append(triplet.get_tuple())
 
-        print(new_exps_real)
+        print("VIABLE EXTENSIONS: ")
+        print(new_exps_real, "\n")
         return new_exps_real
 
     def evaluate_distinct(self, examples: Task, clause: Clause) -> typing.Tuple[int, int]:
