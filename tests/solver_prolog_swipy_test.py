@@ -1,3 +1,4 @@
+from filereaders.taskreader import readPositiveOfType
 from loreleai.language.lp import c_pred, c_functor, c_var, List
 from loreleai.reasoning.lp.prolog import SWIProlog
 
@@ -54,10 +55,18 @@ query3 = r(X, Y)
 rv = pl.query(query3)
 print("all solutions after adding list ", rv)
 
+# Test on the given background knowledge
 pl = SWIProlog()
 pl.consult("../inputfiles/StringTransformations_BackgroundKnowledge.pl")
+test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
 p = c_pred("is_uppercase_aux", 1)
-X = c_var("X")
+test_task = c_pred("test_task", 1)
+is_lowercase = c_pred("is_uppercase", 1)  # is_lowercase(s([H|_],_)):-is_lowercase_aux(H).
+A = c_var("X")
 query = p(X)
-rv = pl.query(query)
-print(rv)
+tex = test.get("b113").pop()  # test_task(s(['o','x','1',' ','3','c','p'],['O','X','1','3','C','P']))
+cl = test_task(A) <= is_lowercase(A)
+pl.asserta(cl)
+print(tex)
+sol = pl.has_solution(tex)  # Returns false??
+print(sol)
