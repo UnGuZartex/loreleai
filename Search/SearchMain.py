@@ -16,9 +16,12 @@ from loreleai.reasoning.lp.prolog import SWIProlog
 
 
 def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
+
+    # Load needed files
     bk, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl", task_id)
     test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
 
+    # Prepare examples
     neg = set()
     pos = test.get(task_id)
     test.pop(task_id)
@@ -42,9 +45,8 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     for predicate in predicates:
         if predicate.name not in ["s", task_id] and predicate not in filtered_predicates:
             total_predicates.append(
-                lambda x, predicate=predicate: plain_extension(x, predicate, connected_clauses=True))
+                lambda x, pred=predicate: plain_extension(x, pred, connected_clauses=True))
             filtered_predicates.append(predicate)
-
 
     # create the hypothesis space
     hs = TopDownHypothesisSpace(primitives=total_predicates,
@@ -53,17 +55,17 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
                                 expansion_hooks_keep=[lambda x, y: connected_clause(x, y),
                                                       lambda x, y: only_1_pred_for_1_var(x, y),
                                                       lambda x, y: head_first(x, y)],
-                                expansion_hooks_reject=[#lambda x, y: has_singleton_vars(x, y),
-                                                        # Singleton-vars constraint is reduced to this constraint
-                                                        lambda x, y: has_not_previous_output_as_input(x, y), # Strict
-                                                        #lambda x, y: has_new_input(x, y), # Not as strict
-                                                        #lambda x, y: has_unexplained_last_var(x, y), # For the 'write' predicate
-                                                        lambda x, y: has_unexplained_last_var_strict(x, y), # Strict version of above
-                                                        lambda x, y: has_duplicated_literal(x, y),
-                                                        lambda x, y: has_g1_same_vars_in_literal(x, y),
-                                                        lambda x, y: has_duplicated_var_set(x, y),
-                                                        lambda x, y: has_double_recursion(x, y),
-                                                        lambda x, y: has_endless_recursion(x, y)])
+                                expansion_hooks_reject=[  # lambda x, y: has_singleton_vars(x, y),
+                                    # Singleton-vars constraint is reduced to this constraint
+                                    lambda x, y: has_not_previous_output_as_input(x, y),  # Strict
+                                    # lambda x, y: has_new_input(x, y), # Not as strict
+                                    # lambda x, y: has_unexplained_last_var(x, y), # For the 'write' predicate
+                                    lambda x, y: has_unexplained_last_var_strict(x, y),  # Strict version of above
+                                    lambda x, y: has_duplicated_literal(x, y),
+                                    lambda x, y: has_g1_same_vars_in_literal(x, y),
+                                    lambda x, y: has_duplicated_var_set(x, y),
+                                    lambda x, y: has_double_recursion(x, y),
+                                    lambda x, y: has_endless_recursion(x, y)])
 
     # create Prolog and learner instance
     prolog = SWIProlog()
@@ -71,6 +73,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
                               model_location="../utility/Saved_model_covered", max_body_literals=10,
                               amount_chosen_from_nn=22, filter_amount=500, threshold=0.1)
 
+    # Try to learn the program
     program = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
     print(program)
 
