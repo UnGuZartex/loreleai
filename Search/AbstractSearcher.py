@@ -183,7 +183,7 @@ class AbstractSearcher(ABC):
 
                 # add into pool
                 self.put_into_pool(exps)
-
+        self._solver.asserta(current_cand)
         return current_cand
 
     def learn(self, examples: Task, background_location: string, hypothesis_space: TopDownHypothesisSpace):
