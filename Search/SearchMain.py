@@ -26,7 +26,9 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     pos = test.get(task_id)
     test.pop(task_id)
     neg_amount = len(pos) * pos_multiplier + neg_example_offset
+
     for i in range(neg_amount):
+
         # Choose random task to sample neg example
         chosen_task_id = random.choice(list(test.keys()))
 
