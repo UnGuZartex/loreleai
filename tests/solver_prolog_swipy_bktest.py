@@ -5,6 +5,8 @@ from loreleai.reasoning.lp.prolog import SWIProlog
 # Test for the given background knowledge
 pl = SWIProlog()
 pl.consult("../inputfiles/StringTransformations_BackgroundKnowledge.pl")
+
+# Load all test tasks in a dictionary. The key is the id of a task and the value is a set of all tasks
 test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
 
 # Basic variables
