@@ -9,4 +9,5 @@ All self implemented files:
 
 NOTE some other files of loreleai were also changes, these are:
 
-   - Several expansion hooks are added to the default ones in loreleai, found in /loreleai/learning/language_filtering.py/
+   - Several expansion hooks are added to the default ones in loreleai, found in /loreleai/learning/language_filtering.py
+   - The utitily methods used for the hooks in the previous point are found in /loreleai/learning/utilities.py
