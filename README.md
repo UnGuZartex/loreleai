@@ -8,4 +8,5 @@ All self implemented files:
   - /tests/solver_prolog_swipy_bktest.py implements a test, testing the evaluation capabilities of the SWI Prolog solver, showing a possible bug (?)
 
 NOTE some other files of loreleai were also changes, these are:
+
     - Several expansion hooks are added to the default ones in loreleai, found in /loreleai/learning/language_filtering.py/
