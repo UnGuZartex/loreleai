@@ -5,7 +5,7 @@ All self implemented files:
   - Every file in dir /Search is used for the search.
   - Every file in dir /utility is mainly used for formatting neural network inputs.
   - Every file in dir /filereaders is used to read data from the given example and bk files
-  - /tests/solver_prolog_swipy_bktest.py implements a test, testing the evaluation capabilities of the SWI Prolog solver, showing a possible bug (?)
+  - /tests/solver_prolog_swipy_bktest.py implements a test, testing the evaluation capabilities of the SWI Prolog solver, ~~showing a possible bug (?)~~ (fixed by changing the background knowledge file)
 
 NOTE some other files of loreleai were also changes, these are:
 
