@@ -1,0 +1,20 @@
+b249
+EXECUTION TIME:
+	 8.200016736984253  seconds
+
+ EXTENSION LENGTH:
+	 [22, 7, 25, 35, 19]
+
+ EXTENSION AMOUNT:
+	 5
+
+ MAX POOL SIZE:
+	 13
+
+ LEARNED RULES:
+	 1
+[test_task(A) :- skip1(A,B),copy1(B,D),is_number(D)]
+
+
+
+

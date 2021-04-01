@@ -60,18 +60,27 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int, nn
 
     # Try to learn the program
     program, ss = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
-    print("END", program)
+    prolog.release()
+    print(program)
 
     return ss
 
 
 def test():
-    test_tasks = ["b3", "b38", "b123", "b249"]  # "b308", "b134", "b188"]
+    test_tasks = ["b249", "b38", "b123"]  # "b308", "b134", "b188"]
+    ss = []
     nn_amount = [22, 18, 15, 10]
 
     for i in range(len(test_tasks)):
+        new = []
         pos, neg = generate_examples(test_tasks[i], 5, 0)
-        train_task(test_tasks[i], 5, 0, nn_amount[i], pos, neg)
+
+        for j in range(len(nn_amount)):
+            output = train_task(test_tasks[i], 5, 0, nn_amount[j], pos, neg)
+            print("DONE EXAMPLE")
+            new.append(output)
+
+        ss.append(new)
 
 
 def generate_examples(task_id, pos_multiplier, neg_example_offset):
@@ -98,9 +107,8 @@ def generate_examples(task_id, pos_multiplier, neg_example_offset):
 
 
 def main():
-    ss = train_task("b249", 5, 0, 22)
-    print("DONE")
-    print("TEST ", ss.ex_time)
+    test()
+    print("DOne main")
 
 
 if __name__ == "__main__":
