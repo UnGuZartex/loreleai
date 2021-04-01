@@ -1,5 +1,6 @@
 import random
 import string
+import sys
 
 from Search.NeuralSearcher1 import NeuralSearcher1
 from filereaders.knowledgereader import createKnowledge
@@ -13,6 +14,9 @@ from loreleai.learning.language_filtering import has_duplicated_literal, connect
 from loreleai.learning.language_manipulation import plain_extension
 from loreleai.learning.task import Task
 from loreleai.reasoning.lp.prolog import SWIProlog
+
+# create Prolog and learner instance
+prolog = SWIProlog()
 
 
 def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int, nn_amount: int, pos=None, neg=None):
@@ -52,15 +56,12 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int, nn
                                     lambda x, y: has_double_recursion(x, y),
                                     lambda x, y: has_endless_recursion(x, y)])
 
-    # create Prolog and learner instance
-    prolog = SWIProlog()
     learner = NeuralSearcher1(solver_instance=prolog, primitives=filtered_predicates,
                               model_location="../utility/Saved_model_covered", max_body_literals=10,
                               amount_chosen_from_nn=nn_amount, filter_amount=30, threshold=0.1)
 
     # Try to learn the program
     program, ss = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
-    prolog.release()
     print(program)
 
     return ss
@@ -69,19 +70,27 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int, nn
 def test():
     test_tasks = ["b249", "b38", "b123"]  # "b308", "b134", "b188"]
     ss = []
-    nn_amount = [22, 18, 15, 10]
+    nn_amount = [22, 20, 18, 16, 14, 12]
 
     for i in range(len(test_tasks)):
-        new = []
         pos, neg = generate_examples(test_tasks[i], 5, 0)
 
         for j in range(len(nn_amount)):
+
             output = train_task(test_tasks[i], 5, 0, nn_amount[j], pos, neg)
+            output.set_task(test_tasks[i])
+            output.set_nn_amount(nn_amount[j])
             print("DONE EXAMPLE")
-            new.append(output)
+            ss.append(output)
 
-        ss.append(new)
+    ostd = sys.stdout
+    with open('tests', 'w') as f:
+        sys.stdout = f
 
+        for s in ss:
+            print(s)
+
+        sys.stdout = ostd
 
 def generate_examples(task_id, pos_multiplier, neg_example_offset):
     test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
@@ -108,7 +117,6 @@ def generate_examples(task_id, pos_multiplier, neg_example_offset):
 
 def main():
     test()
-    print("DOne main")
 
 
 if __name__ == "__main__":

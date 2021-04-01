@@ -1,20 +1,198 @@
-b249
-EXECUTION TIME:
-	 8.200016736984253  seconds
+------------------------------
+TASK: b249
+FILTER SIZE: 22
+TIME: 7.427557706832886
+STOPPED EARLY: False
+EXP LEN: [22, 7, 25, 35, 19]
+EXP COUNT: 5
+MAX QUEUE LEN: 13
+RULES: 1
+------------------------------
 
- EXTENSION LENGTH:
-	 [22, 7, 25, 35, 19]
+------------------------------
+TASK: b249
+FILTER SIZE: 20
+TIME: 7.056065320968628
+STOPPED EARLY: False
+EXP LEN: [22, 7, 25, 35, 19]
+EXP COUNT: 5
+MAX QUEUE LEN: 7
+RULES: 1
+------------------------------
 
- EXTENSION AMOUNT:
-	 5
+------------------------------
+TASK: b249
+FILTER SIZE: 18
+TIME: 3.085226535797119
+STOPPED EARLY: True
+EXP LEN: [22, 7]
+EXP COUNT: 2
+MAX QUEUE LEN: 0
+RULES: 0
+------------------------------
 
- MAX POOL SIZE:
-	 13
+------------------------------
+TASK: b249
+FILTER SIZE: 16
+TIME: 2.95078182220459
+STOPPED EARLY: True
+EXP LEN: [22, 7]
+EXP COUNT: 2
+MAX QUEUE LEN: 0
+RULES: 0
+------------------------------
 
- LEARNED RULES:
-	 1
-[test_task(A) :- skip1(A,B),copy1(B,D),is_number(D)]
+------------------------------
+TASK: b249
+FILTER SIZE: 14
+TIME: 2.9989161491394043
+STOPPED EARLY: True
+EXP LEN: [22, 7]
+EXP COUNT: 2
+MAX QUEUE LEN: 0
+RULES: 0
+------------------------------
 
+------------------------------
+TASK: b249
+FILTER SIZE: 12
+TIME: 2.9777863025665283
+STOPPED EARLY: True
+EXP LEN: [22, 7]
+EXP COUNT: 2
+MAX QUEUE LEN: 0
+RULES: 0
+------------------------------
 
+------------------------------
+TASK: b38
+FILTER SIZE: 22
+TIME: 5.630229473114014
+STOPPED EARLY: False
+EXP LEN: [22, 7, 25, 35]
+EXP COUNT: 4
+MAX QUEUE LEN: 8
+RULES: 1
+------------------------------
 
+------------------------------
+TASK: b38
+FILTER SIZE: 20
+TIME: 5.537781238555908
+STOPPED EARLY: False
+EXP LEN: [22, 7, 25, 35]
+EXP COUNT: 4
+MAX QUEUE LEN: 3
+RULES: 1
+------------------------------
+
+------------------------------
+TASK: b38
+FILTER SIZE: 18
+TIME: 3.3999574184417725
+STOPPED EARLY: True
+EXP LEN: [22, 7]
+EXP COUNT: 2
+MAX QUEUE LEN: 0
+RULES: 0
+------------------------------
+
+------------------------------
+TASK: b38
+FILTER SIZE: 16
+TIME: 3.1905739307403564
+STOPPED EARLY: True
+EXP LEN: [22, 7]
+EXP COUNT: 2
+MAX QUEUE LEN: 0
+RULES: 0
+------------------------------
+
+------------------------------
+TASK: b38
+FILTER SIZE: 14
+TIME: 3.0133349895477295
+STOPPED EARLY: True
+EXP LEN: [22, 7]
+EXP COUNT: 2
+MAX QUEUE LEN: 0
+RULES: 0
+------------------------------
+
+------------------------------
+TASK: b38
+FILTER SIZE: 12
+TIME: 2.997480869293213
+STOPPED EARLY: True
+EXP LEN: [22, 7]
+EXP COUNT: 2
+MAX QUEUE LEN: 0
+RULES: 0
+------------------------------
+
+------------------------------
+TASK: b123
+FILTER SIZE: 22
+TIME: 23.08909511566162
+STOPPED EARLY: False
+EXP LEN: [22, 7, 25, 25, 9, 9, 9, 9, 9, 9, 35, 15, 9, 9, 9, 35, 47]
+EXP COUNT: 17
+MAX QUEUE LEN: 40
+RULES: 1
+------------------------------
+
+------------------------------
+TASK: b123
+FILTER SIZE: 20
+TIME: 31.85505247116089
+STOPPED EARLY: False
+EXP LEN: [22, 7, 25, 25, 9, 9, 9, 9, 9, 9, 9, 9, 9, 35, 15, 35, 15, 15, 35, 15, 15, 35, 47]
+EXP COUNT: 23
+MAX QUEUE LEN: 30
+RULES: 1
+------------------------------
+
+------------------------------
+TASK: b123
+FILTER SIZE: 18
+TIME: 207.4236876964569
+STOPPED EARLY: True
+EXP LEN: [22, 7, 25, 9, 9, 9, 9, 9, 9, 15, 35, 15, 51, 96, 80, 80, 81, 80, 80, 80, 80, 134, 141, 17, 5, 14, 7, 7, 7, 7, 7, 7, 10, 25, 10, 28, 61, 54, 54, 43, 54, 54, 54, 54, 93, 65, 110, 134, 65, 134, 65, 65, 65, 65, 65, 65, 134, 65, 110, 134, 65, 110, 65, 65, 134, 118, 118, 119, 118, 118, 118, 180, 95, 94, 95, 94, 130, 156, 118, 119, 118, 118, 118, 152, 180, 134, 118, 118, 119, 118, 118, 118, 180, 95, 134, 134, 134, 95, 118, 118]
+EXP COUNT: 101
+MAX QUEUE LEN: 172
+RULES: 1
+------------------------------
+
+------------------------------
+TASK: b123
+FILTER SIZE: 16
+TIME: 27.690381050109863
+STOPPED EARLY: True
+EXP LEN: [22, 7, 25, 9, 9, 9, 9, 9, 7, 25, 9, 9, 9, 9, 9, 9, 7, 25, 9, 9, 9]
+EXP COUNT: 21
+MAX QUEUE LEN: 6
+RULES: 0
+------------------------------
+
+------------------------------
+TASK: b123
+FILTER SIZE: 14
+TIME: 15.094493627548218
+STOPPED EARLY: True
+EXP LEN: [22, 7, 25, 9, 9, 9, 9, 9, 7]
+EXP COUNT: 9
+MAX QUEUE LEN: 5
+RULES: 0
+------------------------------
+
+------------------------------
+TASK: b123
+FILTER SIZE: 12
+TIME: 4.300280332565308
+STOPPED EARLY: True
+EXP LEN: [22, 7, 7]
+EXP COUNT: 3
+MAX QUEUE LEN: 1
+RULES: 0
+------------------------------
 

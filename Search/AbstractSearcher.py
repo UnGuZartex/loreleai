@@ -198,6 +198,14 @@ class AbstractSearcher(ABC):
 
                 # add into pool
                 self.put_into_pool(exps)
+
+                if self._candidate_pool.qsize() == 0:
+                    self.stopped_early = True
+                    break
+
+        if self.stopped_early:
+            return None
+
         self._solver.asserta(current_cand)
         return current_cand
 
@@ -241,6 +249,9 @@ class AbstractSearcher(ABC):
 
         self.ex_time = time.time() - t1
 
+        for rule in final_program:
+            self._solver.retract(rule)
+
         if self.stopped_early:
             print("STOPPED EARLY...")
 
@@ -255,6 +266,6 @@ class AbstractSearcher(ABC):
         print("\n LEARNED RULES:")
         print("\t", self.rules)
 
-        ss = SearchStats(self.ex_time, self.exp_len, self.exp_count, self.max_queue_len, self.rules)
+        ss = SearchStats(self.stopped_early, self.ex_time, self.exp_len, self.exp_count, self.max_queue_len, self.rules)
 
         return final_program, ss
