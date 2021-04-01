@@ -1,7 +1,7 @@
 is_empty(s([],_)).
 not_empty(s([_|_],_)).
 
-is_space(s([' '|_],_)).
+is_space(s(['" "'|_],_)).
 not_space(A):- \+is_space(A).
 
 is_uppercase(s([H|_],_)):-is_uppercase_aux(H).
@@ -108,13 +108,13 @@ convert_case('"Y"','y').
 convert_case('"Z"','z').
 
 
-is_number_aux('0').
-is_number_aux('1').
-is_number_aux('2').
-is_number_aux('3').
-is_number_aux('4').
-is_number_aux('5').
-is_number_aux('6').
-is_number_aux('7').
-is_number_aux('8').
-is_number_aux('9').
+is_number_aux('"0"').
+is_number_aux('"1"').
+is_number_aux('"2"').
+is_number_aux('"3"').
+is_number_aux('"4"').
+is_number_aux('"5"').
+is_number_aux('"6"').
+is_number_aux('"7"').
+is_number_aux('"8"').
+is_number_aux('"9"').

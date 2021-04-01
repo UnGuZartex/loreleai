@@ -81,7 +81,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
 
 
 def main():
-    train_task("b113", 20, 0)
+    train_task("b188", 20, 0)
 
 
 if __name__ == "__main__":

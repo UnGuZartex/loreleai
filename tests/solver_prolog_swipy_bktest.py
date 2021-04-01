@@ -22,7 +22,7 @@ print(tex)
 
 
 # We test whether the example starts without a space, this should be true
-not_space = c_pred("not_space", 1)  # not_space(A):- \+is_space(A).
+not_space = c_pred("is_space", 1)  # not_space(A):- \+is_space(A).
 cl = test_task(A) <= not_space(A)
 pl.asserta(cl)
 sol = pl.has_solution(tex)  # Returns true, good
