@@ -28,6 +28,9 @@ class AbstractSearcher(ABC):
         self.rules = 0
         self._candidate_pool = PriorityQueue()
 
+        # For stats
+        self.exp_len = []
+
     def _assert_knowledge(self, knowledge: Knowledge):
         """
         Assert knowledge into Prolog engine
@@ -218,5 +221,7 @@ class AbstractSearcher(ABC):
             print("\n FOUND A RULE, CURRENT PROGRAM AND COVERED: ")
             print("\t", final_program)
             print("\t", covered)
+            print("\n EXTENSION LENGTH:")
+            print("\t", self.exp_len)
 
         return final_program

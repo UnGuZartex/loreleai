@@ -49,7 +49,7 @@ print(rv)  # Prints all lowercase letters, good
 is_lowercase = c_pred("is_lowercase", 1)  # is_lowercase(s([H|_],_)):-is_lowercase_aux(H).
 cl = test_task(A) <= is_lowercase(A)
 pl.asserta(cl)
-sol = pl.has_solution(tex)  # Returns false, not good (?)
+sol = pl.has_solution(tex)  # Returns true, good
 print(sol)
 pl.retract(cl)
 
@@ -66,6 +66,6 @@ print(rv)  # Prints letter pairs, good
 mk_uppercase = c_pred("mk_uppercase", 2)  # mk_uppercase(s([H1|Ta],[H2|Tb]),s(Ta,Tb)):- convert_case(H2,H1).
 cl = test_task(A) <= mk_uppercase(A, B)
 pl.asserta(cl)
-sol = pl.has_solution(tex)  # Returns false, not good (?)
+sol = pl.has_solution(tex)  # Returns true, good
 print(sol)
 pl.retract(cl)

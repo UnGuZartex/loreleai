@@ -73,7 +73,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     prolog = SWIProlog()
     learner = NeuralSearcher1(solver_instance=prolog, primitives=filtered_predicates,
                               model_location="../utility/Saved_model_covered", max_body_literals=10,
-                              amount_chosen_from_nn=22, filter_amount=500, threshold=0.1)
+                              amount_chosen_from_nn=22, filter_amount=30, threshold=0.1)
 
     # Try to learn the program
     program = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
@@ -81,7 +81,7 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
 
 
 def main():
-    train_task("b249", 2, 2)
+    train_task("b113", 20, 0)
 
 
 if __name__ == "__main__":

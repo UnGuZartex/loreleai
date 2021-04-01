@@ -125,9 +125,6 @@ class AbstractNeuralSearcher(AbstractSearcher):
         # Encode current candidate to list
         encoded_current_cand = clause_to_list(current_cand, self.current_primitives.tolist())
 
-        print("EXPANSIONS BEFORE FILTERING: ")
-        print(exps_raw, "\n")
-
         exps = []
         first = True
         for e in exps_raw:
@@ -143,6 +140,10 @@ class AbstractNeuralSearcher(AbstractSearcher):
 
         # eliminate every clause with more body literals than allowed
         exps = [cl for cl in exps if len(cl) <= self._max_body_literals]
+
+        print("EXPANSIONS BEFORE FILTERING: ")
+        self.exp_len.append(len(exps))
+        print(exps, "\n")
 
         # check if every clause has solutions
         exps = [(cl, self._solver.has_solution(*cl.get_body().get_literals())) for cl in exps]
