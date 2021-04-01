@@ -69,7 +69,11 @@ def encode_string(string: List):
     result = [0] * MAX_STRING_LENGTH
     arguments = string.arguments
     for index in range(len(arguments)):
-        result[index] = ord(arguments[index].name.replace("'", "").replace("\"", ""))
+        if len(arguments[index].name) == 1:
+            arg = arguments[index].name
+        else:
+            arg = arguments[index].name[1]
+        result[index] = ord(arg)
     return result
 
 
