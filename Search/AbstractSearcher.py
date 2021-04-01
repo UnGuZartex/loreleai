@@ -1,11 +1,13 @@
 import string
 import typing
+import time
 from abc import ABC, abstractmethod
 from queue import PriorityQueue
 
 import numpy
 from pylo.language.commons import c_pred, Structure, c_functor, List
 
+from Search.SearchStats import SearchStats
 from Search.Triplet import Triplet
 from loreleai.language.lp import (
     Clause,
@@ -29,7 +31,11 @@ class AbstractSearcher(ABC):
         self._candidate_pool = PriorityQueue()
 
         # For stats
+        self.stopped_early = False
         self.exp_len = []
+        self.exp_count = 0
+        self.max_queue_len = 0
+        self.ex_time = 0
 
     def _assert_knowledge(self, knowledge: Knowledge):
         """
@@ -174,6 +180,12 @@ class AbstractSearcher(ABC):
             score = self.evaluate(examples, current_cand)
             print("\t length: ", len(current_cand))
             print("\t Pool size: ", self._candidate_pool.qsize(), "\n")
+            self.exp_count += 1
+            self.max_queue_len = max(self.max_queue_len, self._candidate_pool.qsize())
+
+            if self.exp_count == 101:
+                self.stopped_early = True
+                break
                 
             if not current_cand.is_recursive():
                 # expand the candidate and get possible expansions
@@ -194,6 +206,7 @@ class AbstractSearcher(ABC):
         General learning loop
         """
 
+        t1 = time.time()
         self._solver.consult(background_location)
         self._solver.asserta(c_pred("test_task", 1)(Structure(c_functor("s", 2), [List([]), List([])])))
         
@@ -205,6 +218,10 @@ class AbstractSearcher(ABC):
         while len(final_program) == 0 or len(pos) > 0:
             # learn a single clause
             cl = self._learn_one_clause(examples_to_use, hypothesis_space)
+
+            if self.stopped_early:
+                break
+
             final_program.append(cl)
             self.rules += 1
 
@@ -221,7 +238,23 @@ class AbstractSearcher(ABC):
             print("\n FOUND A RULE, CURRENT PROGRAM AND COVERED: ")
             print("\t", final_program)
             print("\t", covered)
-            print("\n EXTENSION LENGTH:")
-            print("\t", self.exp_len)
 
-        return final_program
+        self.ex_time = time.time() - t1
+
+        if self.stopped_early:
+            print("STOPPED EARLY...")
+
+        print("\n EXECUTION TIME:")
+        print("\t", self.ex_time, " seconds")
+        print("\n EXTENSION LENGTH:")
+        print("\t", self.exp_len)
+        print("\n EXTENSION AMOUNT:")
+        print("\t", self.exp_count)
+        print("\n MAX POOL SIZE:")
+        print("\t", self.max_queue_len)
+        print("\n LEARNED RULES:")
+        print("\t", self.rules)
+
+        ss = SearchStats(self.ex_time, self.exp_len, self.exp_count, self.max_queue_len, self.rules)
+
+        return final_program, ss

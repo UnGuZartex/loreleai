@@ -7,10 +7,12 @@ class Triplet:
         self.pos = pos
         self.neg = neg
 
+        self.min_score = -200
+
     # Verander deze funcs naar 1 func indien we een andere measure gebruiken :)
     def func1(self):
-        if (self.pos + self.neg) == 0:
-            return -200
+        if (self.pos + self.neg) == 0 or self.pos == 0:
+            return self.min_score
         else:
             return self.pos / (self.pos+self.neg)
         # return self.pos

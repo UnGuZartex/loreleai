@@ -158,7 +158,9 @@ class AbstractNeuralSearcher(AbstractSearcher):
                     # keep it if it has solutions and if it has an allowed primitive
                     pos, neg = self.evaluate_distinct(examples, current_exp)
                     new_exp = Triplet(current_exp, pos, neg)
-                    new_exps.append(new_exp)
+
+                    if new_exp.func1() != new_exp.min_score:
+                        new_exps.append(new_exp)
 
                     # TODO maybe at another place for better performance (currently not used)
                     self.set_example_weights(current_cand, current_exp, examples)

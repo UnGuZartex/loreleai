@@ -15,29 +15,12 @@ from loreleai.learning.task import Task
 from loreleai.reasoning.lp.prolog import SWIProlog
 
 
-def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
-
+def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int, nn_amount: int, pos=None, neg=None):
     # Load needed files
     bk, predicates = createKnowledge("../inputfiles/StringTransformations_BackgroundKnowledge.pl", task_id)
-    test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
 
-    # Prepare examples
-    neg = set()
-    pos = test.get(task_id)
-    test.pop(task_id)
-    neg_amount = len(pos) * pos_multiplier + neg_example_offset
-
-    for i in range(neg_amount):
-
-        # Choose random task to sample neg example
-        chosen_task_id = random.choice(list(test.keys()))
-
-        # Choose random example and remove so it doesn't get picked again
-        chosen_neg_example = random.sample(test[chosen_task_id], 1)[0]
-        test[chosen_task_id].remove(chosen_neg_example)
-
-        # Add example to negative example list
-        neg.add(chosen_neg_example)
+    if pos is None and neg is None:
+        pos, neg = generate_examples(task_id, pos_multiplier, neg_example_offset)
 
     task = Task(positive_examples=pos, negative_examples=neg)
 
@@ -73,15 +56,51 @@ def train_task(task_id: string, pos_multiplier: int, neg_example_offset: int):
     prolog = SWIProlog()
     learner = NeuralSearcher1(solver_instance=prolog, primitives=filtered_predicates,
                               model_location="../utility/Saved_model_covered", max_body_literals=10,
-                              amount_chosen_from_nn=22, filter_amount=30, threshold=0.1)
+                              amount_chosen_from_nn=nn_amount, filter_amount=30, threshold=0.1)
 
     # Try to learn the program
-    program = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
-    print(program)
+    program, ss = learner.learn(task, "../inputfiles/StringTransformations_BackgroundKnowledge.pl", hs)
+    print("END", program)
+
+    return ss
+
+
+def test():
+    test_tasks = ["b3", "b38", "b123", "b249"]  # "b308", "b134", "b188"]
+    nn_amount = [22, 18, 15, 10]
+
+    for i in range(len(test_tasks)):
+        pos, neg = generate_examples(test_tasks[i], 5, 0)
+        train_task(test_tasks[i], 5, 0, nn_amount[i], pos, neg)
+
+
+def generate_examples(task_id, pos_multiplier, neg_example_offset):
+    test = readPositiveOfType("../inputfiles/StringTransformationProblems", "test_task")
+
+    # Prepare examples
+    neg = set()
+    pos = test.get(task_id)
+    test.pop(task_id)
+    neg_amount = len(pos) * pos_multiplier + neg_example_offset
+
+    for i in range(neg_amount):
+        # Choose random task to sample neg example
+        chosen_task_id = random.choice(list(test.keys()))
+
+        # Choose random example and remove so it doesn't get picked again
+        chosen_neg_example = random.sample(test[chosen_task_id], 1)[0]
+        test[chosen_task_id].remove(chosen_neg_example)
+
+        # Add example to negative example list
+        neg.add(chosen_neg_example)
+
+    return pos, neg
 
 
 def main():
-    train_task("b188", 20, 0)
+    ss = train_task("b249", 5, 0, 22)
+    print("DONE")
+    print("TEST ", ss.ex_time)
 
 
 if __name__ == "__main__":
